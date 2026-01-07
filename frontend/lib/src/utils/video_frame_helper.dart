@@ -5,11 +5,11 @@ Future<File?> extractFrame(String videoPath) async {
   final tempDir = Directory.systemTemp;
   final framePath = p.join(tempDir.path, 'video_frame.png');
 
-  final ffmpegPath = 'ffmpeg'; // Ensure ffmpeg.exe is in PATH or provide full path
+  final ffmpegPath = 'ffmpeg';
 
   final result = await Process.run(ffmpegPath, [
     '-i', videoPath,
-    '-ss', '00:00:01.000', // capture frame at 1 second
+    '-ss', '00:00:01.000', 
     '-vframes', '1',
     framePath,
   ]);

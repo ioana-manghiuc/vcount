@@ -13,7 +13,6 @@ class FilePickerHelper {
 
     final videoPath = result.files.single.path!;
 
-    // Just return the local path; backend will provide thumbnail
     return VideoModel(path: videoPath);
   }
 }

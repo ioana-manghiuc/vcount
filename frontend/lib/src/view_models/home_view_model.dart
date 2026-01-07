@@ -1,4 +1,3 @@
-// lib/src/view_models/home_view_model.dart
 import 'package:flutter/material.dart';
 import '../models/video_model.dart';
 import '../utils/file_picker_helper.dart';
@@ -8,19 +7,25 @@ class HomeViewModel extends ChangeNotifier {
   VideoModel? video;
   bool isLoading = false;
 
-  Future<void> pickVideo() async {
-    video = await FilePickerHelper.pickVideo();
-    if (video == null) return;
+  Future<void> pickVideo(BuildContext context) async {
+    final pickedFile = await FilePickerHelper.pickVideo();
+    if (pickedFile == null) return;
 
     isLoading = true;
     notifyListeners();
 
-    // Send the video to backend and get a thumbnail URL
-    final thumbnailUrl = await BackendService.uploadVideoAndGetThumbnail(video!.path);
+    final thumbnailUrl = await BackendService.uploadVideoAndGetThumbnail(pickedFile.path);
+    if (thumbnailUrl == null) {
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
 
-    video = VideoModel(path: video!.path, thumbnailUrl: thumbnailUrl);
+    video = VideoModel(path: pickedFile.path, thumbnailUrl: thumbnailUrl);
 
     isLoading = false;
     notifyListeners();
+
+    Navigator.pushNamed(context, '/directions', arguments: video);
   }
 }
