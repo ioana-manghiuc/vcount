@@ -41,7 +41,14 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     return AppBar(
       title: Text(localizations?.translate(widget.titleKey) ?? widget.titleKey),
       actions: [
-        // Language dropdown
+        IconButton(
+          tooltip: localizations?.translate('userManual') ?? 'User manual',
+          icon: const Icon(Icons.info_outline),
+          onPressed: () {
+            Navigator.of(context).pushNamed('/about');
+          },
+        ),
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: DropdownButton<String>(
@@ -91,7 +98,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
             },
           ),
         ),
-        // Theme toggle
+
         IconButton(
           icon: Icon(
             themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,

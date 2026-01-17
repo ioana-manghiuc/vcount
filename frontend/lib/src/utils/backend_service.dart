@@ -20,7 +20,6 @@ class BackendService {
     final body = await response.stream.bytesToString();
     final json = jsonDecode(body);
 
-    // IMPORTANT: build absolute URL
     return '$backendUrl${json['thumbnail_url']}';
   } else {
     return null;

@@ -1,13 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/direction_line.dart';
 
 class DirectionsProvider extends ChangeNotifier {
   final List<DirectionLine> _directions = [];
-  DirectionLine? _active;    // currently being drawn
-  DirectionLine? _selected;  // currently selected in panel
-  Color _currentColor = Colors.red; // Track the current drawing color
+  DirectionLine? _active;    
+  DirectionLine? _selected;  
+  Color _currentColor = Colors.red; 
 
   List<DirectionLine> get directions => _directions;
   DirectionLine? get activeDirection => _active;
@@ -16,9 +15,15 @@ class DirectionsProvider extends ChangeNotifier {
 
   bool get canSend => _directions.any((d) => d.isLocked);
 
-  /// Start a new direction and select it
+  void reset() {
+    _directions.clear();
+    _active = null;
+    _selected = null;
+    _currentColor = Colors.red;
+    notifyListeners();
+  }
+
   void startNewDirection({Color? color}) {
-    // If there is an active undrawn direction, don't create another
     if (_active != null && !_active!.isLocked) return;
 
     final line = DirectionLine(
@@ -31,13 +36,11 @@ class DirectionsProvider extends ChangeNotifier {
 
     _directions.add(line);
     _active = line;
-    _selected = line; // panel now works on this line
+    _selected = line;
     notifyListeners();
   }
 
-  /// Add a point to the active or selected direction (canvas)
   void addPoint(Offset point, Size canvasSize) {
-    // Use selected direction if no active direction
     final target = _active ?? _selected;
     if (target == null || target.isLocked) return;
 
@@ -50,14 +53,12 @@ class DirectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Select a direction for panel editing
   void selectDirection(DirectionLine direction) {
-    if (direction.isLocked) return; // cannot select locked direction
+    if (direction.isLocked) return;
     _selected = direction;
     notifyListeners();
   }
 
-  /// Update labels on the selected direction
   void updateLabels(String from, String to) {
     if (_selected == null || _selected!.isLocked) return;
     _selected!
@@ -66,15 +67,13 @@ class DirectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update color on the selected direction
   void updateColor(Color color) {
     if (_selected == null || _selected!.isLocked) return;
     _selected!.color = color;
-    _currentColor = color; // Remember this color for next direction
+    _currentColor = color; 
     notifyListeners();
   }
 
-  /// Lock the selected direction
   void lockSelectedDirection() {
     if (_selected == null) return;
     if (!_selected!.canLock) return;
@@ -85,7 +84,6 @@ class DirectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Unlock a direction and select it
   void unlockDirection(DirectionLine d) {
     d.isLocked = false;
     _selected = d;
@@ -93,7 +91,6 @@ class DirectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Delete a direction
   void deleteDirection(DirectionLine d) {
     _directions.remove(d);
     if (_active == d) _active = null;
@@ -101,7 +98,6 @@ class DirectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Serialize locked directions for sending
   List<Map<String, dynamic>> serializeDirections() {
     return _directions
         .where((d) => d.isLocked)

@@ -4,7 +4,6 @@ class ThemeProvider extends ChangeNotifier {
   late bool isDark;
 
   ThemeProvider() {
-    // Initialize with device theme
     final brightness = WidgetsBinding.instance.window.platformBrightness;
     isDark = brightness == Brightness.dark;
   }

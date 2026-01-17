@@ -24,5 +24,13 @@
   "directionError": "Direction Error",
   "pleaseDrawDirection": "Please draw a direction on the canvas first.",
   "error": "Error",
-  "noDirectionSelected": "No direction selected."
+  "noDirectionSelected": "No direction selected.",
+  "waitingForServer": "Waiting for server...",
+  "userManual": "User manual",
+  "userManualIntro": "Follow these steps to get started:",
+  "userManualStepUpload": "Click the canvas or upload button to select a video.",
+  "userManualStepWait": "Wait while the server prepares the thumbnail.",
+  "userManualStepDraw": "Click to add points on the image to create direction lines, add labels, and lock them.",
+  "userManualStepSend": "Send the locked directions to the backend.",
+  "userManualTip": "Tip: You can change colors before drawing a new direction."
 }

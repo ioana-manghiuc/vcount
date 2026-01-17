@@ -1,12 +1,9 @@
-// lib/src/routing/route_handler.dart
 import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
 import '../screens/directions_screen.dart';
 import '../screens/results_screen.dart';
+import '../screens/about_screen.dart';
 import '../models/video_model.dart';
-import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
-
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -36,6 +33,9 @@ class AppRouter {
 
       case '/results':
         return MaterialPageRoute(builder: (_) => const ResultsScreen());
+
+      case '/about':
+        return MaterialPageRoute(builder: (_) => const AboutScreen());
 
       default:
         return MaterialPageRoute(

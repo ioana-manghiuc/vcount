@@ -23,14 +23,17 @@ class DirectionLine {
       labelTo.isNotEmpty;
 
   Map<String, dynamic> toJson() {
+    if (points.length < 2) {
+      throw Exception("Direction must have at least 2 points");
+    }
     return {
       'id': id,
       'from': labelFrom,
       'to': labelTo,
       'color': color.toARGB32(),
-      'points': points
-          .map((p) => {'x': p.dx, 'y': p.dy})
-          .toList(),
+      'p1': {'x': points.first.dx, 'y': points.first.dy},
+      'p2': {'x': points[1].dx, 'y': points[1].dy},
     };
   }
+
 }

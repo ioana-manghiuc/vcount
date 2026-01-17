@@ -7,7 +7,7 @@ class HomeViewModel extends ChangeNotifier {
   VideoModel? video;
   bool isLoading = false;
 
-  Future<void> pickVideo(BuildContext context) async {
+  Future<void> pickVideo() async {
     final pickedFile = await FilePickerHelper.pickVideo();
     if (pickedFile == null) return;
 
@@ -25,7 +25,5 @@ class HomeViewModel extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
-
-    Navigator.pushNamed(context, '/directions', arguments: video);
   }
 }

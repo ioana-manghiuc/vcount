@@ -3,6 +3,8 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import '../providers/directions_provider.dart';
 import '../localization/app_localizations.dart';
+import '../constants/error_strings.dart';
+import '../constants/button_strings.dart';
 
 class DirectionsPanel extends StatelessWidget {
   const DirectionsPanel({super.key});
@@ -70,7 +72,7 @@ class _DirectionCardState extends State<_DirectionCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Color & status
+
             Row(
               children: [
                 GestureDetector(
@@ -90,7 +92,7 @@ class _DirectionCardState extends State<_DirectionCard> {
                     : localizations?.translate('editable') ?? 'Editable'),
               ],
             ),
-            // From label
+
             TextField(
               decoration: InputDecoration(
                 labelText: localizations?.translate('from') ?? 'From',
@@ -98,7 +100,7 @@ class _DirectionCardState extends State<_DirectionCard> {
               controller: _fromController,
               onChanged: (v) => provider.updateLabels(v, _toController.text),
             ),
-            // To label
+ 
             TextField(
               decoration: InputDecoration(
                 labelText: localizations?.translate('to') ?? 'To',
@@ -106,7 +108,7 @@ class _DirectionCardState extends State<_DirectionCard> {
               controller: _toController,
               onChanged: (v) => provider.updateLabels(_fromController.text, v),
             ),
-            // Buttons: Save, Delete
+
             Row(
               children: [
                 TextButton(
@@ -152,7 +154,7 @@ class _DirectionCardState extends State<_DirectionCard> {
             onPressed: () {
               provider.updateColor(tempColor);
               Navigator.of(context).pop();
-            },
+             },
             child: Text(localizations?.translate('save') ?? 'Save'),
           ),
         ],
@@ -165,37 +167,37 @@ class _DirectionCardState extends State<_DirectionCard> {
     final localizations = widget.localizations;
 
     if (currentDirection == null) {
-      _showErrorDialog(context, localizations?.translate('error') ?? 'Error',
-          localizations?.translate('noDirectionSelected') ?? 'No direction selected.');
+      _showErrorDialog(context, localizations?.translate('error') ?? ErrorStrings.errorTitle,
+          localizations?.translate('noDirectionSelected') ?? ErrorStrings.noDirectionSelected);
       return;
     }
 
     if (currentDirection.points.isEmpty) {
       _showErrorDialog(
           context,
-          localizations?.translate('directionError') ?? 'Direction Error',
+          localizations?.translate('directionError') ?? ErrorStrings.directionErrorTitle,
           localizations?.translate('pleaseDrawDirection') ??
-              'Please draw a direction on the canvas first.');
+              ErrorStrings.pleaseDrawDirection);
       return;
     }
 
     if (currentDirection.points.length < 2) {
       _showErrorDialog(
           context,
-          localizations?.translate('directionError') ?? 'Direction Error',
-          'Direction must have at least 2 points. Please draw a longer line.');
+          localizations?.translate('directionError') ?? ErrorStrings.directionErrorTitle,
+          ErrorStrings.minimumTwoPoints);
       return;
     }
 
     if (_fromController.text.isEmpty) {
-      _showErrorDialog(context, localizations?.translate('error') ?? 'Error',
-          'Please enter the "From" location.');
+      _showErrorDialog(context, localizations?.translate('error') ?? ErrorStrings.errorTitle,
+          ErrorStrings.emptyFromLocation);
       return;
     }
 
     if (_toController.text.isEmpty) {
-      _showErrorDialog(context, localizations?.translate('error') ?? 'Error',
-          'Please enter the "To" location.');
+      _showErrorDialog(context, localizations?.translate('error') ?? ErrorStrings.errorTitle,
+          ErrorStrings.emptyToLocation);
       return;
     }
 
@@ -211,7 +213,7 @@ class _DirectionCardState extends State<_DirectionCard> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const Text(ButtonStrings.okButton),
           ),
         ],
       ),

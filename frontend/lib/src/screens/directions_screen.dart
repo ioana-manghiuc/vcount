@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../models/video_model.dart';
 import '../providers/directions_provider.dart';
 import '../localization/app_localizations.dart';

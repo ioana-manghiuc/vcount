@@ -14,6 +14,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   provider: ^6.0.5
   path: ^1.8.3
+  loading_animation_widget:
   google_fonts: ^6.1.0
   http: ^1.6.0
   flutter_localizations:
