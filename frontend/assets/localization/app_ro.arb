@@ -34,5 +34,7 @@
   "userManualStepSend": "Trimite direcțiile blocate către backend.",
   "userManualTip": "Sfat: Poți schimba culorile înainte să desenezi o direcție nouă.",
   "tapCanvasToUpload": "Atinge canvasul sau butonul pentru a încărca un videoclip",
-  "modelInfoTooltip": "Faceți clic pentru mai multe informații despre modele"
+  "modelInfoTooltip": "Faceți clic pentru mai multe informații despre modele",
+  "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
+  "multipleLinesDirection" : "Linii multiple pentru direcție"
 }

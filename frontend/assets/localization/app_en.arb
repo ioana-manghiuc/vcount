@@ -34,5 +34,7 @@
   "userManualStepSend": "Send the locked directions to the backend.",
   "userManualTip": "Tip: You can change colors before drawing a new direction.",
   "tapCanvasToUpload": "Tap the canvas or button to upload a video",
-  "modelInfoTooltip": "Click for more information about models"
+  "modelInfoTooltip": "Click for more information about models",
+  "howToChooseModel": "How to choose the right YOLO11 version?",
+  "multipleLinesDirection" : "Multiple lines for direction"
 }

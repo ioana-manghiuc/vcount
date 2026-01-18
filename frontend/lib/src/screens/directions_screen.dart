@@ -23,7 +23,7 @@ class DirectionsScreen extends StatelessWidget {
 class _DirectionsScreenBody extends StatelessWidget {
   final VideoModel video;
 
-  const _DirectionsScreenBody({super.key, required this.video});
+  const _DirectionsScreenBody({required this.video});
 
   @override
   Widget build(BuildContext context) {

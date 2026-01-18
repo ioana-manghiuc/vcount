@@ -1,5 +1,6 @@
 import 'dart:ui';
-
+import '../models/direction_model.dart';
+import '../models/point_model.dart';
 class DirectionLine {
   final String id;
   final List<Offset> points;
@@ -36,4 +37,15 @@ class DirectionLine {
     };
   }
 
+  DirectionModel toDirectionModel() {
+  return DirectionModel(
+    label: '$labelFrom → $labelTo',
+    colorHex: '#${color.value.toRadixString(16).padLeft(8, '0')}',
+    points: points
+        .take(2)
+        .map((p) => PointModel(p.dx, p.dy))
+        .toList(),
+  );
+
+}
 }
