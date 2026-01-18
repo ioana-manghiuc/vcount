@@ -137,7 +137,7 @@ class _DirectionsPainter extends CustomPainter {
 
       if (d.points.isEmpty) continue;
 
-      for (int i = 0; i < d.points.length - 1; i++) {
+      for (int i = 0; i < d.points.length - 1; i += 2) {
         final p1 = d.points[i];
         final p2 = d.points[i + 1];
         canvas.drawLine(
@@ -162,7 +162,7 @@ class _DirectionsPainter extends CustomPainter {
 
     if (cursorPosition != null && directions.isNotEmpty) {
       final activeDir = directions.firstWhereOrNull(
-        (d) => !d.isLocked && d.points.isNotEmpty,
+        (d) => !d.isLocked && d.points.length == 1,
       );
 
       if (activeDir != null) {

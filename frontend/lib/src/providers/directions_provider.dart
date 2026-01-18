@@ -27,8 +27,6 @@ class DirectionsProvider extends ChangeNotifier {
   }
 
   void startNewDirection({Color? color}) {
-      if (_active != null && !_active!.isLocked) return;
-
       final line = DirectionLine(
         id: const Uuid().v4(),
         points: [],
@@ -44,8 +42,14 @@ class DirectionsProvider extends ChangeNotifier {
   }
 
   void addPoint(Offset point, Size canvasSize) {
-      final target = _active ?? _selected;
-      if (target == null || target.isLocked) return;
+      DirectionLine? target;
+      if (_active != null) {
+        target = _active;
+      } else if (_selected != null && !_selected!.isLocked && _selected!.points.length % 2 == 0) {
+        target = _selected;
+      }
+      
+      if (target == null) return;
 
       target.points.add(
         Offset(
@@ -53,21 +57,34 @@ class DirectionsProvider extends ChangeNotifier {
           point.dy / canvasSize.height,
         ),
       );
+      
+      if (target.points.length % 2 == 0) {
+        _active = null;
+        _selected = target;
+      } else {
+        _active = target;
+        _selected = target;
+      }
+      
       notifyListeners();
   }
 
   void selectDirection(DirectionLine direction) {
     _selected = direction;
+    if (!direction.isLocked && direction.points.length % 2 == 0) {
+      _active = direction;
+    }
     notifyListeners();    
   }
 
   void unlockForEditing(DirectionLine direction) {
       if (!_directions.contains(direction)) return;
       _selected = direction;
-      _active = direction;
+      if (direction.points.length % 2 == 0) {
+        _active = direction;
+      }
       notifyListeners();
   }
-
     
   void updateLabels(String from, String to) {
       if (_selected == null || _selected!.isLocked) return;
@@ -91,13 +108,6 @@ class DirectionsProvider extends ChangeNotifier {
       _selected!.isLocked = true;
       if (_active == _selected) _active = null;
       _selected = null;
-      notifyListeners();
-  }
-
-  void unlockDirection(DirectionLine d) {
-      d.isLocked = false;
-      _selected = d;
-      _active = d;
       notifyListeners();
   }
 
@@ -128,9 +138,28 @@ class DirectionsProvider extends ChangeNotifier {
       if (_active == direction) _active = null;
       _selected = null;
     } else {
-      _active = direction;
+      if (direction.points.length % 2 == 0) {
+        _active = direction;
+      }
       _selected = direction;
     }
+    notifyListeners();
+  }
+
+  void updatePointCoordinate(DirectionLine direction, int pointIndex, double x, double y) {
+    if (!_directions.contains(direction) || direction.isLocked) return;
+    if (pointIndex < 0 || pointIndex >= direction.points.length) return;
+    
+    direction.points[pointIndex] = Offset(x.clamp(0.0, 1.0), y.clamp(0.0, 1.0));
+    notifyListeners();
+  }
+
+  void deletePointPair(DirectionLine direction, int lineIndex) {
+    if (!_directions.contains(direction) || direction.isLocked) return;
+    final startIndex = lineIndex * 2;
+    if (startIndex < 0 || startIndex >= direction.points.length - 1) return;
+    
+    direction.points.removeRange(startIndex, startIndex + 2);
     notifyListeners();
   }
 }

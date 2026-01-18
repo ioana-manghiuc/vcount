@@ -31,9 +31,7 @@ class DirectionLine {
       'id': id,
       'from': labelFrom,
       'to': labelTo,
-      'color': color.toARGB32(),
-      'p1': {'x': points.first.dx, 'y': points.first.dy},
-      'p2': {'x': points[1].dx, 'y': points[1].dy},
+      'points': points.map((p) => {'x': p.dx, 'y': p.dy}).toList(),
     };
   }
 

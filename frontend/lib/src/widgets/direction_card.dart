@@ -109,6 +109,33 @@ class _DirectionCardState extends State<DirectionCard> {
                 onChanged: (v) => provider.updateLabels(_fromController.text, v),
                 enabled: isSelected,
               ),
+              
+              if (direction.points.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Lines (${(direction.points.length / 2).floor()}):',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ...List.generate((direction.points.length / 2).floor(), (lineIndex) {
+                  final p1Index = lineIndex * 2;
+                  final p2Index = lineIndex * 2 + 1;
+                  if (p2Index >= direction.points.length) return const SizedBox.shrink();
+                  
+                  return _buildLineCoordinates(
+                    context,
+                    provider,
+                    direction,
+                    lineIndex,
+                    p1Index,
+                    p2Index,
+                    isSelected,
+                  );
+                }),
+              ],
+              
               Row(
                 children: [
                   Checkbox(
@@ -145,6 +172,142 @@ class _DirectionCardState extends State<DirectionCard> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLineCoordinates(
+    BuildContext context,
+    DirectionsProvider provider,
+    DirectionLine direction,
+    int lineIndex,
+    int p1Index,
+    int p2Index,
+    bool isSelected,
+  ) {
+    final p1 = direction.points[p1Index];
+    final p2 = direction.points[p2Index];
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Line ${lineIndex + 1}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => provider.deletePointPair(direction, lineIndex),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: _buildCoordinateField(
+                  context,
+                  'X1',
+                  p1.dx,
+                  (value) {
+                    final x = double.tryParse(value);
+                    if (x != null) {
+                      provider.updatePointCoordinate(direction, p1Index, x, p1.dy);
+                    }
+                  },
+                  isSelected,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildCoordinateField(
+                  context,
+                  'Y1',
+                  p1.dy,
+                  (value) {
+                    final y = double.tryParse(value);
+                    if (y != null) {
+                      provider.updatePointCoordinate(direction, p1Index, p1.dx, y);
+                    }
+                  },
+                  isSelected,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: _buildCoordinateField(
+                  context,
+                  'X2',
+                  p2.dx,
+                  (value) {
+                    final x = double.tryParse(value);
+                    if (x != null) {
+                      provider.updatePointCoordinate(direction, p2Index, x, p2.dy);
+                    }
+                  },
+                  isSelected,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildCoordinateField(
+                  context,
+                  'Y2',
+                  p2.dy,
+                  (value) {
+                    final y = double.tryParse(value);
+                    if (y != null) {
+                      provider.updatePointCoordinate(direction, p2Index, p2.dx, y);
+                    }
+                  },
+                  isSelected,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoordinateField(
+    BuildContext context,
+    String label,
+    double value,
+    Function(String) onChanged,
+    bool enabled,
+  ) {
+    return TextField(
+      controller: TextEditingController(text: value.toStringAsFixed(3)),
+      decoration: InputDecoration(
+        labelText: label,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        border: const OutlineInputBorder(),
+      ),
+      style: Theme.of(context).textTheme.bodySmall,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      enabled: enabled,
+      onChanged: onChanged,
     );
   }
 
