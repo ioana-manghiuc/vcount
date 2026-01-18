@@ -34,6 +34,7 @@ class VehicleCounterApp extends StatelessWidget {
               fontFamily: GoogleFonts.phudu().fontFamily,
             ),
             themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
+            initialRoute: '/start',
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: const [
               AppLocalizations.delegate,

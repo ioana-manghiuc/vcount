@@ -20,14 +20,12 @@ class AppLocalizations {
       Localizations.of<AppLocalizations>(context, AppLocalizations);
 
   Future<bool> load() async {
-    // Load main app strings
     final jsonString = await rootBundle
         .loadString('assets/localization/app_${locale.languageCode}.arb');
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     _localizedStrings =
         jsonMap.map((key, value) => MapEntry(key, value.toString()));
     
-    // Load user manual strings
     try {
       final userManualString = await rootBundle
           .loadString('assets/localization/user_manual_${locale.languageCode}.arb');
@@ -39,7 +37,6 @@ class AppLocalizations {
       // If user manual file doesn't exist, continue without it
     }
     
-    // Load model info strings
     try {
       final modelInfoString = await rootBundle
           .loadString('assets/localization/model_info_${locale.languageCode}.arb');
@@ -56,7 +53,6 @@ class AppLocalizations {
 
   String translate(String key) => _localizedStrings[key] ?? '**$key**';
 
-  // Getters for all localization keys
   String get appTitle => _localizedStrings['appTitle'] ?? 'Vehicle Counter';
   String get uploadVideo => _localizedStrings['uploadVideo'] ?? 'Upload video';
   String get drawDirections => _localizedStrings['drawDirections'] ?? 'Draw directions';
@@ -66,6 +62,7 @@ class AppLocalizations {
   String get to => _localizedStrings['to'] ?? 'To';
   String get save => _localizedStrings['save'] ?? 'Save';
   String get delete => _localizedStrings['delete'] ?? 'Delete';
+  String get start => _localizedStrings['start'] ?? 'Start';
   String get sendToBackend => _localizedStrings['sendToBackend'] ?? 'Send to Backend';
   String get locked => _localizedStrings['locked'] ?? 'Locked';
   String get editable => _localizedStrings['editable'] ?? 'Editable';
@@ -125,6 +122,7 @@ class AppLocalizations {
   String get recommendation4 => _localizedStrings['recommendation4'] ?? '• GPU acceleration significantly improves speed (CUDA for NVIDIA, Metal for Apple)';
   String get tapCanvasToUpload => _localizedStrings['tapCanvasToUpload'] ?? 'Tap the canvas or button to upload a video';
   String get modelInfoTooltip => _localizedStrings['modelInfoTooltip'] ?? 'Click for more information about models';
+  String get startScreenWelcome => _localizedStrings['startScreenWelcome'] ?? 'Welcome to VCount!';
 }
 
 class _AppLocalizationsDelegate

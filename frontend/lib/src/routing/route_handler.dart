@@ -4,11 +4,15 @@ import '../screens/directions_screen.dart';
 import '../screens/results_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/model_info_screen.dart';
+import '../screens/start_screen.dart';
 import '../models/video_model.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case '/start':
+        return MaterialPageRoute(builder: (_) => const StartScreen());
+
       case '/':
         return MaterialPageRoute(builder: (_) => const HomeScreen());
 

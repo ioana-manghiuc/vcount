@@ -38,6 +38,11 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     final languageProvider = context.watch<LanguageProvider>();
 
     return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/start', (route) => false),
+        tooltip: AppLocalizations.of(context)!.translate('start'),
+      ),
       title: Text(AppLocalizations.of(context)!.translate(widget.titleKey)),
       actions: [
         IconButton(
