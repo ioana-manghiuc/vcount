@@ -5,6 +5,7 @@ import '../providers/directions_provider.dart';
 import '../localization/app_localizations.dart';
 import '../constants/error_strings.dart';
 import '../constants/button_strings.dart';
+import '../screens/model_info_screen.dart';
 
 class DirectionsPanel extends StatelessWidget {
   const DirectionsPanel({super.key});
@@ -23,7 +24,7 @@ class DirectionsPanel extends StatelessWidget {
           DropdownButtonFormField<String>(
             value: provider.selectedModel,
             decoration: const InputDecoration(
-              labelText: 'YOLO model',
+              labelText: 'YOLO 11 version',
               isDense: true,
               border: OutlineInputBorder(),
             ),
@@ -40,6 +41,34 @@ class DirectionsPanel extends StatelessWidget {
                 provider.setSelectedModel(model);
               }
             },
+          ),
+
+          const SizedBox(height: 4),
+
+          const SizedBox(height: 6),
+
+          Tooltip(
+            message: 'Click for more information about models',
+            waitDuration: const Duration(milliseconds: 300),
+            child: ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+              title: Text(
+                localizations?.translate('How to choose the right version?') ??
+                    'How to choose the right version?',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      decoration: TextDecoration.underline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ModelInfoScreen(),
+                  ),
+                );
+              },
+            ),
           ),
 
           const SizedBox(height: 8),
