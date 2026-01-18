@@ -18,6 +18,7 @@ class DirectionCard extends StatefulWidget {
 class _DirectionCardState extends State<DirectionCard> {
   late TextEditingController _fromController;
   late TextEditingController _toController;
+  final Map<String, TextEditingController> _coordinateControllers = {};
   bool isChecked = false;
 
   @override
@@ -31,6 +32,9 @@ class _DirectionCardState extends State<DirectionCard> {
   void dispose() {
     _fromController.dispose();
     _toController.dispose();
+    for (final controller in _coordinateControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -231,6 +235,7 @@ class _DirectionCardState extends State<DirectionCard> {
                     }
                   },
                   isSelected,
+                  p1Index,
                 ),
               ),
               const SizedBox(width: 4),
@@ -246,6 +251,7 @@ class _DirectionCardState extends State<DirectionCard> {
                     }
                   },
                   isSelected,
+                  p1Index,
                 ),
               ),
             ],
@@ -265,6 +271,7 @@ class _DirectionCardState extends State<DirectionCard> {
                     }
                   },
                   isSelected,
+                  p2Index,
                 ),
               ),
               const SizedBox(width: 4),
@@ -280,6 +287,7 @@ class _DirectionCardState extends State<DirectionCard> {
                     }
                   },
                   isSelected,
+                  p2Index,
                 ),
               ),
             ],
@@ -295,9 +303,21 @@ class _DirectionCardState extends State<DirectionCard> {
     double value,
     Function(String) onChanged,
     bool enabled,
+    int pointIndex,
   ) {
+    final key = '$pointIndex-$label';
+    
+    if (!_coordinateControllers.containsKey(key)) {
+      _coordinateControllers[key] = TextEditingController(text: value.toStringAsFixed(3));
+    } else {
+      final controller = _coordinateControllers[key]!;
+      if (controller.text != value.toStringAsFixed(3)) {
+        controller.text = value.toStringAsFixed(3);
+      }
+    }
+
     return TextField(
-      controller: TextEditingController(text: value.toStringAsFixed(3)),
+      controller: _coordinateControllers[key],
       decoration: InputDecoration(
         labelText: label,
         isDense: true,
