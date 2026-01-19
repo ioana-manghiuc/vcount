@@ -31,8 +31,22 @@ class DirectionLine {
       'id': id,
       'from': labelFrom,
       'to': labelTo,
+      'color': color.toARGB32(),
       'points': points.map((p) => {'x': p.dx, 'y': p.dy}).toList(),
     };
+  }
+
+  factory DirectionLine.fromJson(Map<String, dynamic> json) {
+    return DirectionLine(
+      id: json['id'],
+      labelFrom: json['from'],
+      labelTo: json['to'],
+      color: Color(json['color']), 
+      points: (json['points'] as List)
+          .map((p) => Offset((p['x'] as num).toDouble(), (p['y'] as num).toDouble()))
+          .toList(),
+      isLocked: true,
+    );
   }
 
   DirectionModel toDirectionModel() {

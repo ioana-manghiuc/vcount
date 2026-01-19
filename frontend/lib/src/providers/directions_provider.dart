@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/direction_line.dart';
+import 'package:hive/hive.dart';
 
 class DirectionsProvider extends ChangeNotifier {
     final List<DirectionLine> _directions = [];
@@ -130,6 +131,20 @@ class DirectionsProvider extends ChangeNotifier {
           .toList();
   }
 
+  Map<String, dynamic> serializeIntersection(String name, Size canvasSize) {
+    return {
+      'id': const Uuid().v4(),
+      'name': name,
+      'canvasSize': {
+        'w': canvasSize.width,
+        'h': canvasSize.height,
+      },
+      'directions': serializeDirections(),
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+  }
+
+
   void toggleLock(DirectionLine direction) {
     if (!_directions.contains(direction)) return;
 
@@ -162,4 +177,49 @@ class DirectionsProvider extends ChangeNotifier {
     direction.points.removeRange(startIndex, startIndex + 2);
     notifyListeners();
   }
+
+  Future<void> saveIntersection(String name, Size canvasSize) async {
+    final box = await Hive.openBox('intersections');
+
+    final data = serializeIntersection(name, canvasSize);
+    await box.put(data['id'], data);
+  }
+
+  Future<void> loadIntersection(String id) async {
+    final box = await Hive.openBox('intersections');
+    final data = box.get(id);
+
+    _directions.clear();
+
+    for (final d in data['directions']) {
+      _directions.add(DirectionLine.fromJson(d));
+    }
+
+    _selected = null;
+    _active = null;
+    notifyListeners();
+  }
+
+  Future<List<Map<String, dynamic>>> listIntersections() async {
+    final box = await Hive.openBox('intersections');
+    return box.values
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  void loadIntersectionFromData(Map<String, dynamic> data) {
+    _directions.clear();
+
+    if (data['directions'] != null) {
+      for (final d in data['directions']) {
+        _directions.add(DirectionLine.fromJson(d));
+      }
+    }
+
+    _selected = null;
+    _active = null;
+
+    notifyListeners();
+  }
+
 }

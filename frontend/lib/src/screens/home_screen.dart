@@ -74,7 +74,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ],
                           )
-                        : const _DirectionsPlaceholder(),
+                        : _DirectionsPlaceholder(localizations: localizations),
                   ),
                 ],
               ),
@@ -177,8 +177,9 @@ class _CanvasArea extends StatelessWidget {
 }
 
 class _DirectionsPlaceholder extends StatelessWidget {
-  const _DirectionsPlaceholder();
-
+  final AppLocalizations localizations;
+  const _DirectionsPlaceholder({required this.localizations});
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -193,7 +194,7 @@ class _DirectionsPlaceholder extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'Upload a video to start drawing directions',
+            localizations.uploadVideoToStartDrawingDirections,
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

@@ -7,8 +7,9 @@ import '../localization/app_localizations.dart';
 
 class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   final String titleKey;
+  final String? backTooltipKey;
 
-  const AppBarWidget({super.key, required this.titleKey});
+  const AppBarWidget({super.key, required this.titleKey, this.backTooltipKey});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -32,6 +33,28 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     super.dispose();
   }
 
+  String _getBackTooltip(BuildContext context, String? customKey) {
+    if (customKey != null) {
+      return AppLocalizations.of(context)!.translate(customKey);
+    }
+
+    final routeName = ModalRoute.of(context)?.settings.name ?? '';
+    final localizations = AppLocalizations.of(context)!;
+
+    switch (routeName) {
+      case '/about':
+        return localizations.translate('drawDirections');
+      case '/model-info':
+        return localizations.translate('drawDirections');
+      case '/results':
+        return localizations.translate('drawDirections');
+      case '/directions':
+        return localizations.translate('appTitle');
+      default:
+        return localizations.translate('back');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
@@ -40,8 +63,15 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/start', (route) => false),
-        tooltip: AppLocalizations.of(context)!.translate('start'),
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop();
+          } else {
+            navigator.pushReplacementNamed('/start');
+          }
+        },
+        tooltip: _getBackTooltip(context, widget.backTooltipKey),
       ),
       title: Text(AppLocalizations.of(context)!.translate(widget.titleKey)),
       actions: [

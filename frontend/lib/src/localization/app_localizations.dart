@@ -58,6 +58,8 @@ class AppLocalizations {
   String get drawDirections => _localizedStrings['drawDirections'] ?? 'Draw directions';
   String get pickVideo => _localizedStrings['pickVideo'] ?? 'Pick Video';
   String get addDirection => _localizedStrings['addDirection'] ?? 'Add Direction';
+  String get saveIntersection => _localizedStrings['saveIntersection'] ?? 'Save Intersection';
+  String get loadIntersection => _localizedStrings['loadIntersection'] ?? 'Load Intersection';
   String get from => _localizedStrings['from'] ?? 'From';
   String get to => _localizedStrings['to'] ?? 'To';
   String get save => _localizedStrings['save'] ?? 'Save';
@@ -84,6 +86,7 @@ class AppLocalizations {
   String get userManualStepDraw => _localizedStrings['userManualStepDraw'] ?? 'Click to add points on the image to create direction lines, add labels, and lock them.';
   String get userManualStepSend => _localizedStrings['userManualStepSend'] ?? 'Send the locked directions to the backend.';
   String get userManualTip => _localizedStrings['userManualTip'] ?? 'Tip: You can change colors before drawing a new direction.';
+  String get uploadVideoToStartDrawingDirections => _localizedStrings['uploadVideoToStartDrawingDirections'] ?? 'Upload a video to start drawing directions';
   
   // Model Info getters
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';
@@ -123,6 +126,7 @@ class AppLocalizations {
   String get tapCanvasToUpload => _localizedStrings['tapCanvasToUpload'] ?? 'Tap the canvas or button to upload a video';
   String get modelInfoTooltip => _localizedStrings['modelInfoTooltip'] ?? 'Click for more information about models';
   String get startScreenWelcome => _localizedStrings['startScreenWelcome'] ?? 'Welcome to VCount!';
+
 }
 
 class _AppLocalizationsDelegate

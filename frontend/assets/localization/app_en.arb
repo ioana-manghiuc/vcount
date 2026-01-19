@@ -38,5 +38,8 @@
   "howToChooseModel": "How to choose the right YOLO11 version?",
   "multipleLinesDirection" : "Multiple lines for direction",
   "start": "Start",
-  "startScreenWelcome": "Welcome to VCount!"
+  "startScreenWelcome": "Welcome to VCount!",
+  "resultsTitle": "Results",
+  "back": "Back",
+  "uploadVideoToStartDrawingDirections": "Upload a video to start drawing directions"
 }

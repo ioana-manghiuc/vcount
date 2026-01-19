@@ -38,5 +38,8 @@
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
   "multipleLinesDirection" : "Linii multiple pentru direcție",
   "start": "Start",
-  "startScreenWelcome": "Bine ai venit la VCount!"
+  "startScreenWelcome": "Bine ai venit la VCount!",
+  "resultsTitle": "Rezultate",
+  "back": "Înapoi",
+  "uploadVideoToStartDrawingDirections": "Încarcă un video pentru a începe să desenezi direcții"
 }

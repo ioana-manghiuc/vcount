@@ -11,10 +11,16 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/start':
-        return MaterialPageRoute(builder: (_) => const StartScreen());
+        return MaterialPageRoute(
+          builder: (_) => const StartScreen(),
+          settings: const RouteSettings(name: '/start'),
+        );
 
       case '/':
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+          settings: const RouteSettings(name: '/'),
+        );
 
       case '/directions':
         if (settings.arguments is VideoModel) {
@@ -22,6 +28,7 @@ class AppRouter {
 
           return MaterialPageRoute(
             builder: (_) => DirectionsScreen(video: video),
+            settings: const RouteSettings(name: '/directions'),
           );
         }
 
@@ -37,13 +44,22 @@ class AppRouter {
         );
 
       case '/results':
-        return MaterialPageRoute(builder: (_) => const ResultsScreen());
+        return MaterialPageRoute(
+          builder: (_) => const ResultsScreen(),
+          settings: const RouteSettings(name: '/results'),
+        );
 
       case '/about':
-        return MaterialPageRoute(builder: (_) => const AboutScreen());
+        return MaterialPageRoute(
+          builder: (_) => const AboutScreen(),
+          settings: const RouteSettings(name: '/about'),
+        );
 
       case '/model-info':
-        return MaterialPageRoute(builder: (_) => const ModelInfoScreen());
+        return MaterialPageRoute(
+          builder: (_) => const ModelInfoScreen(),
+          settings: const RouteSettings(name: '/model-info'),
+        );
 
       default:
         return MaterialPageRoute(

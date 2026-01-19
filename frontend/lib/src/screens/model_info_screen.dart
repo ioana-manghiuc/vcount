@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../localization/app_localizations.dart';
+import '../widgets/app_bar.dart';
 
 class ModelInfoScreen extends StatelessWidget {
   const ModelInfoScreen({super.key});
@@ -9,10 +10,7 @@ class ModelInfoScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.modelInfoTitle),
-        centerTitle: true,
-      ),
+      appBar: const AppBarWidget(titleKey: 'modelInfoTitle'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

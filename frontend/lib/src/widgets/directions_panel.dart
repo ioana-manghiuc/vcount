@@ -4,6 +4,7 @@ import '../providers/directions_provider.dart';
 import '../localization/app_localizations.dart';
 import '../screens/model_info_screen.dart';
 import 'direction_card.dart';
+import 'intersection_dialogs.dart';
 
 class DirectionsPanel extends StatelessWidget {
   const DirectionsPanel({super.key});
@@ -11,7 +12,7 @@ class DirectionsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DirectionsProvider>();
-    final localizations = AppLocalizations.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -26,13 +27,21 @@ class DirectionsPanel extends StatelessWidget {
               border: OutlineInputBorder(),
             ),
             items: const ['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l', 'yolo11xl']
-                .map((m) => DropdownMenuItem(value: m, child: Text(m.toUpperCase())))
+                .map(
+                  (m) => DropdownMenuItem(
+                    value: m,
+                    child: Text(m.toUpperCase()),
+                  ),
+                )
                 .toList(),
-            onChanged: (model) => model != null ? provider.setSelectedModel(model) : null,
+            onChanged: (model) =>
+                model != null ? provider.setSelectedModel(model) : null,
           ),
+
           const SizedBox(height: 8),
+
           Tooltip(
-            message: localizations!.modelInfoTooltip,
+            message: localizations.modelInfoTooltip,
             waitDuration: const Duration(milliseconds: 300),
             child: ListTile(
               dense: true,
@@ -49,7 +58,9 @@ class DirectionsPanel extends StatelessWidget {
               ),
             ),
           ),
+
           const SizedBox(height: 8),
+
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.only(bottom: 8),
@@ -61,6 +72,22 @@ class DirectionsPanel extends StatelessWidget {
               ),
             ),
           ),
+
+          if (provider.directions.isNotEmpty) ...[
+            ElevatedButton(
+              onPressed: () => saveIntersectionToFile(context, provider, MediaQuery.of(context).size),
+              child: Text(localizations.saveIntersection),
+            ),
+            const SizedBox(height: 8),
+          ],
+
+          ElevatedButton(
+            onPressed: () => showLoadIntersectionDialog(context),
+            child: Text(localizations.loadIntersection),
+          ),
+
+          const SizedBox(height: 10),
+
           ElevatedButton(
             onPressed: () => provider.startNewDirection(),
             child: Text(localizations.addDirection),
