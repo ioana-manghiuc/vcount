@@ -37,6 +37,7 @@
   "modelInfoTooltip": "Faceți clic pentru mai multe informații despre modele",
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
   "multipleLinesDirection" : "Linii multiple pentru direcție",
+  "yolo11VersionLabel": "Versiune YOLO 11",
   "start": "Start",
   "startScreenWelcome": "Bine ai venit la VCount!",
   "resultsTitle": "Rezultate",
@@ -69,5 +70,15 @@
   },
   "labelsAndLineRequired": "Etichetele De la / Către sunt necesare și desenează cel puțin o linie.",
   "line": "Linie",
-  "lines": "Linii"
+  "lines": "Linii",
+  "entryLineLabel": "Prima linie (intrare)",
+  "exitLineLabel": "A doua linie (ieșire)",
+  "lineWithNumber": "Linia {number}",
+  "@lineWithNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  }
 }

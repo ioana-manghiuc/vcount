@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -8,13 +8,21 @@ import logging
 from pathlib import Path
 from uuid import uuid4
 from dotenv import load_dotenv
+from logging_config import LOGGING_CONFIG
+logging.config.dictConfig(LOGGING_CONFIG)
 
-from vehicle_counter import VehicleCounter 
-from yolo_counter import VehicleCounterYOLO11
+logger = logging.getLogger("app")
 
 load_dotenv()
-
 app = FastAPI()
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info("%s %s", request.method, request.url.path)
+    response = await call_next(request)
+    logger.info("→ %d", response.status_code)
+    return response
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,41 +35,65 @@ app.add_middleware(
 UPLOAD_FOLDER = "videos"
 FRAME_FOLDER = "frames"
 RESULTS_FOLDER = "results"
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
 @app.post("/upload_frame")
 async def upload_frame(video: UploadFile = File(...)):
+    logger.info("upload_frame: filename=%s", video.filename)
+
     video_path = os.path.join(UPLOAD_FOLDER, video.filename)
     with open(video_path, "wb") as f:
         f.write(await video.read())
 
-    cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, int(fps))
-    ret, frame = cap.read()
-    cap.release()
+    try:
+        cap = cv2.VideoCapture(video_path)
+        
+        if not cap.isOpened():
+            raise HTTPException(400, "Failed to open video file")
+        
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        logger.info("Video FPS: %s", fps)
+        
+        # Extract frame at 1 second mark
+        frame_index = max(0, int(fps) if fps > 0 else 30)  # Default to 30 if fps is invalid
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+        
+        ret, frame = cap.read()
+        cap.release()
 
-    if not ret:
-        raise HTTPException(400, "Frame extraction failed")
+        if not ret or frame is None:
+            logger.error("Failed to extract frame at index %d", frame_index)
+            raise HTTPException(400, "Frame extraction failed")
 
-    name = Path(video.filename).stem + ".png"
-    path = os.path.join(FRAME_FOLDER, name)
-    cv2.imwrite(path, frame)
+        name = Path(video.filename).stem + ".png"
+        path = os.path.join(FRAME_FOLDER, name)
+        success = cv2.imwrite(path, frame)
+        
+        if not success:
+            logger.error("Failed to write frame to %s", path)
+            raise HTTPException(500, "Failed to save frame")
 
-    return {"thumbnail_url": f"/frames/{name}"}
+        logger.info("Thumbnail written: %s", path)
+        return {"thumbnail_url": f"/frames/{name}"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Unexpected error in upload_frame: %s", str(e))
+        raise HTTPException(500, f"Unexpected error: {str(e)}")
 
 
 @app.get("/frames/{filename}")
 def get_frame(filename: str):
+    logger.info("Serving frame: %s", filename)
+
     path = os.path.join(FRAME_FOLDER, filename)
     if not os.path.exists(path):
         raise HTTPException(404)
+
     return FileResponse(path, media_type="image/png")
 
 
@@ -69,79 +101,85 @@ def validate_directions(directions):
     for d in directions:
         if "id" not in d:
             raise ValueError("Direction missing id")
-        if "p1" not in d or "p2" not in d:
-            raise ValueError(f"Direction {d.get('id', '?')} missing line points")
+        if "points" not in d or len(d["points"]) < 2:
+            raise ValueError(f"Direction {d.get('id')} missing points")
         if "from" not in d or "to" not in d:
-            raise ValueError(f"Direction {d.get('id', '?')} missing from/to labels")
+            raise ValueError(f"Direction {d.get('id')} missing from/to")
+
 
 @app.post("/count_vehicles")
 async def count_vehicles(
     video: UploadFile = File(...),
     directions: str = Form(...),
-    model_name: str = Form(default="best.pt"),
+    model_name: str = Form("best.pt"),
 ):
-    """
-    Process video with YOLO11 + ByteTrack and count vehicles across multiple directions.
-    """
     try:
+        logger.info("count_vehicles called")
+
         directions_data = json.loads(directions)
-        validate_directions(directions_data)    
-        if not directions_data:
-            raise ValueError("No directions provided")
+        validate_directions(directions_data)
+
+        logger.info("Model: %s", model_name)
+        logger.info("Directions count: %d", len(directions_data))
+
+        for d in directions_data:
+            logger.info(
+                "Direction id=%s from=%s to=%s points=%s",
+                d["id"], d["from"], d["to"], d["points"]
+            )
 
         video_path = os.path.join(UPLOAD_FOLDER, f"{uuid4()}_{video.filename}")
         with open(video_path, "wb") as f:
             f.write(await video.read())
 
-        model_path = os.path.join("models", model_name)
-        if not os.path.exists(model_path):
-            raise ValueError(f"Model not found: {model_path}")
-
         device = "cuda" if cv2.cuda.getCudaEnabledDeviceCount() > 0 else "cpu"
-        yolo = VehicleCounterYOLO11(model_path=model_path, conf=0.45, imgsz=640, device=device)
+        logger.info("Device selected: %s", device)
 
-        cap = cv2.VideoCapture(video_path)
-        ret, frame = cap.read()
-        if not ret:
-            raise ValueError("Cannot read first frame")
-        frame_h, frame_w = frame.shape[:2]
-        cap.release()
+        # yolo = VehicleCounterYOLO11(
+        #     model_path=os.path.join("models", model_name),
+        #     conf=0.45,
+        #     imgsz=640,
+        #     device=device,
+        # )
 
-        counter = VehicleCounter(lines=directions_data, frame_w=frame_w, frame_h=frame_h)
-        prev_positions = {}
-        for dets_with_ids in yolo.track_video(video_path):
-                tracks_to_update = []
+        # cap = cv2.VideoCapture(video_path)
+        # ret, frame = cap.read()
+        # if not ret:
+        #     raise RuntimeError("Cannot read video")
+        # h, w = frame.shape[:2]
+        # cap.release()
 
-        for d in dets_with_ids:
-            tid = d["track_id"]
-            x, y, w, h = d["bbox"]
-            cx = (x + w / 2) / frame_w
-            cy = (y + h / 2) / frame_h
-            prev = prev_positions.get(tid)
-            if prev:
-                tracks_to_update.append({
-                    "id": tid,
-                    "previous": prev,
-                    "current": (cx, cy)
-                })
-            prev_positions[tid] = (cx, cy)
+        # counter = VehicleCounter(lines=directions_data, frame_w=w, frame_h=h)
 
-        counter.update(tracks_to_update)
+        # prev_positions = {}
 
-        results = counter.get_results()
-        result_id = str(uuid4())
-        out_path = os.path.join(RESULTS_FOLDER, f"{result_id}.json")
-        with open(out_path, "w") as f:
-            json.dump(results, f, indent=2)
+        # for frame_idx, detections in yolo.track_video(video_path):
+        #     logger.debug("Frame %d detections=%d", frame_idx, len(detections))
 
-        os.remove(video_path)
+        #     updates = []
 
-        return {**results, "results_id": result_id}
+        #     for d in detections:
+        #         tid = d["track_id"]
+        #         cx, cy = d["bbox"]
 
-    except Exception as e:
+        #         prev = prev_positions.get(tid)
+        #         if prev:
+        #             updates.append({
+        #                 "id": tid,
+        #                 "previous": prev,
+        #                 "current": (cx / w, cy / h),
+        #             })
+
+        #         prev_positions[tid] = (cx / w, cy / h)
+
+        #     if updates:
+        #         counter.update(updates)
+
+        # results = counter.get_results()
+        # logger.info("Final results: %s", results)
+
+        # return results
+
+    except Exception:
         logger.exception("Vehicle counting failed")
-        raise HTTPException(500, str(e))
-    
-if __name__ == "__main__": 
-    import uvicorn 
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+        raise HTTPException(500, "Vehicle counting failed")

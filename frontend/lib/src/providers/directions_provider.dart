@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../models/direction_line.dart';
+import '../models/direction.dart';
+import '../models/line_model.dart';
 import 'package:hive/hive.dart';
 
 class DirectionsProvider extends ChangeNotifier {
-    final List<DirectionLine> _directions = [];
-    DirectionLine? _active;    
-    DirectionLine? _selected;  
+    final List<Direction> _directions = [];
+    Direction? _active;    
+    Direction? _selected;  
     Color _currentColor = Colors.red;
     String _selectedModel = 'yolo11n';
+    bool _isDrawingLine = false;
 
-    List<DirectionLine> get directions => _directions;
-    DirectionLine? get activeDirection => _active;
-    DirectionLine? get selectedDirection => _selected;
+    List<Direction> get directions => _directions;
+    Direction? get activeDirection => _active;
+    Direction? get selectedDirection => _selected;
     Color get currentColor => _currentColor;
     String get selectedModel => _selectedModel;
 
@@ -24,66 +26,67 @@ class DirectionsProvider extends ChangeNotifier {
       _active = null;
       _selected = null;
       _currentColor = Colors.red;
+      _isDrawingLine = false;
       notifyListeners();
   }
 
   void startNewDirection({Color? color}) {
-      final line = DirectionLine(
-        id: const Uuid().v4(),
-        points: [],
+      final direction = Direction(
         labelFrom: '',
         labelTo: '',
         color: color ?? _currentColor,
       );
 
-      _directions.add(line);
-      _active = line;
-      _selected = line;
+      _directions.add(direction);
+      _active = direction;
+      _selected = direction;
+      _isDrawingLine = false;
       notifyListeners();
   }
 
   void addPoint(Offset point, Size canvasSize) {
-      DirectionLine? target;
-      if (_active != null) {
-        target = _active;
-      } else if (_selected != null && !_selected!.isLocked && _selected!.points.length % 2 == 0) {
-        target = _selected;
-      }
+      Direction? target = _selected;
       
-      if (target == null) return;
+      if (target == null || target.isLocked) return;
 
-      target.points.add(
-        Offset(
-          point.dx / canvasSize.width,
-          point.dy / canvasSize.height,
-        ),
-      );
-      
-      if (target.points.length % 2 == 0) {
-        _active = null;
-        _selected = target;
+      final normalizedX = point.dx / canvasSize.width;
+      final normalizedY = point.dy / canvasSize.height;
+
+      if (!_isDrawingLine) {
+        final newLine = LineModel(
+          x1: normalizedX,
+          y1: normalizedY,
+          x2: normalizedX,
+          y2: normalizedY,
+          isEntry: target.lines.isEmpty, 
+        );
+        target.lines.add(newLine);
+        _isDrawingLine = true;
       } else {
-        _active = target;
-        _selected = target;
+        target.lines.last = target.lines.last.copyWith(
+          x2: normalizedX,
+          y2: normalizedY,
+        );
+        _isDrawingLine = false;
       }
       
       notifyListeners();
   }
 
-  void selectDirection(DirectionLine direction) {
+  void selectDirection(Direction direction) {
     _selected = direction;
-    if (!direction.isLocked && direction.points.length % 2 == 0) {
+    _isDrawingLine = false;
+    if (!direction.isLocked) {
       _active = direction;
     }
     notifyListeners();    
   }
 
-  void unlockForEditing(DirectionLine direction) {
+  void unlockForEditing(Direction direction) {
       if (!_directions.contains(direction)) return;
       _selected = direction;
-      if (direction.points.length % 2 == 0) {
-        _active = direction;
-      }
+      _active = direction;
+      _isDrawingLine = false;
       notifyListeners();
   }
     
@@ -112,7 +115,7 @@ class DirectionsProvider extends ChangeNotifier {
       notifyListeners();
   }
 
-  void deleteDirection(DirectionLine d) {
+  void deleteDirection(Direction d) {
       _directions.remove(d);
       if (_active == d) _active = null;
       if (_selected == d) _selected = null;
@@ -145,42 +148,56 @@ class DirectionsProvider extends ChangeNotifier {
   }
 
 
-  void toggleLock(DirectionLine direction) {
+  void toggleLock(Direction direction) {
     if (!_directions.contains(direction)) return;
 
     direction.isLocked = !direction.isLocked;
     if (direction.isLocked) {
       if (_active == direction) _active = null;
       _selected = null;
+      _isDrawingLine = false;
     } else {
-      if (direction.points.length % 2 == 0) {
-        _active = direction;
-      }
+      _active = direction;
       _selected = direction;
+      _isDrawingLine = false;
     }
     notifyListeners();
   }
 
-  void updatePointCoordinate(DirectionLine direction, int pointIndex, double x, double y) {
+  void setLineAsEntry(Direction direction, int lineIndex) {
     if (!_directions.contains(direction) || direction.isLocked) return;
-    if (pointIndex < 0 || pointIndex >= direction.points.length) return;
+    if (lineIndex < 0 || lineIndex >= direction.lines.length) return;
     
-    direction.points[pointIndex] = Offset(x.clamp(0.0, 1.0), y.clamp(0.0, 1.0));
+    for (final line in direction.lines) {
+      line.isEntry = false;
+    }
+    direction.lines[lineIndex].isEntry = true;
     notifyListeners();
   }
 
-  void deletePointPair(DirectionLine direction, int lineIndex) {
+  void deleteLineAtIndex(Direction direction, int lineIndex) {
     if (!_directions.contains(direction) || direction.isLocked) return;
-    final startIndex = lineIndex * 2;
-    if (startIndex < 0 || startIndex >= direction.points.length - 1) return;
+    if (lineIndex < 0 || lineIndex >= direction.lines.length) return;
     
-    direction.points.removeRange(startIndex, startIndex + 2);
+    direction.lines.removeAt(lineIndex);
+    notifyListeners();
+  }
+
+  void updateLineCoordinates(Direction direction, int lineIndex, double x1, double y1, double x2, double y2) {
+    if (!_directions.contains(direction) || direction.isLocked) return;
+    if (lineIndex < 0 || lineIndex >= direction.lines.length) return;
+    
+    direction.lines[lineIndex] = direction.lines[lineIndex].copyWith(
+      x1: x1.clamp(0.0, 1.0),
+      y1: y1.clamp(0.0, 1.0),
+      x2: x2.clamp(0.0, 1.0),
+      y2: y2.clamp(0.0, 1.0),
+    );
     notifyListeners();
   }
 
   Future<void> saveIntersection(String name, Size canvasSize) async {
     final box = await Hive.openBox('intersections');
-
     final data = serializeIntersection(name, canvasSize);
     await box.put(data['id'], data);
   }
@@ -192,7 +209,7 @@ class DirectionsProvider extends ChangeNotifier {
     _directions.clear();
 
     for (final d in data['directions']) {
-      _directions.add(DirectionLine.fromJson(d));
+      _directions.add(Direction.fromJson(d));
     }
 
     _selected = null;
@@ -207,17 +224,15 @@ class DirectionsProvider extends ChangeNotifier {
         .toList();
   }
 
-void loadIntersectionFromData(Map<String, dynamic> data) {
-  _directions.clear();
+  void loadIntersectionFromData(Map<String, dynamic> data) {
+    _directions.clear();
 
-  for (final d in data['directions']) {
-    _directions.add(DirectionLine.fromJson(d));
+    for (final d in data['directions']) {
+      _directions.add(Direction.fromJson(d));
+    }
+
+    _selected = null;
+    _active = null;
+    notifyListeners();
   }
-
-  _selected = null;
-  _active = null;
-  notifyListeners();
-}
-
-
 }

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/directions_provider.dart';
-import '../models/direction_line.dart';
+import '../models/direction.dart';
 
 class DrawOnImage extends StatefulWidget {
   final String imageUrl;
@@ -94,6 +94,7 @@ class _DrawOnImageState extends State<DrawOnImage> {
                       child: CustomPaint(
                         painter: _DirectionsPainter(
                           directions: provider.directions,
+                          selectedDirection: provider.selectedDirection,
                           currentColor: provider.currentColor,
                           cursorPosition: _cursorPosition,
                           canvasSize: canvasSize,
@@ -112,13 +113,15 @@ class _DrawOnImageState extends State<DrawOnImage> {
 }
 
 class _DirectionsPainter extends CustomPainter {
-  final List<DirectionLine> directions;
+  final List<Direction> directions;
+  final Direction? selectedDirection;
   final Color currentColor;
   final Offset? cursorPosition;
   final Size canvasSize;
 
   _DirectionsPainter({
     required this.directions,
+    required this.selectedDirection,
     required this.currentColor,
     required this.canvasSize,
     this.cursorPosition,
@@ -129,40 +132,117 @@ class _DirectionsPainter extends CustomPainter {
     final effectiveSize = canvasSize;
 
     for (final d in directions) {
+      late Color lineColor;
+      if (d.isLocked && selectedDirection != d) {
+        lineColor = Colors.black;
+      } else {
+        lineColor = d.color;
+      }
+
       final paint = Paint()
-        ..color = d.color
+        ..color = lineColor
         ..strokeWidth = d.isLocked ? 3 : 4
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
 
-      if (d.points.isEmpty) continue;
+      if (d.lines.isEmpty) continue;
 
-      for (int i = 0; i < d.points.length - 1; i += 2) {
-        final p1 = d.points[i];
-        final p2 = d.points[i + 1];
-        canvas.drawLine(
-          Offset(p1.dx * effectiveSize.width, p1.dy * effectiveSize.height),
-          Offset(p2.dx * effectiveSize.width, p2.dy * effectiveSize.height),
-          paint,
-        );
+      for (final line in d.lines) {
+        final p1 = Offset(line.x1 * effectiveSize.width, line.y1 * effectiveSize.height);
+        final p2 = Offset(line.x2 * effectiveSize.width, line.y2 * effectiveSize.height);
+        canvas.drawLine(p1, p2, paint);
+      }
+
+      if (d.isLocked && selectedDirection != d) {
+        final borderPaint = Paint()
+          ..color = Colors.white
+          ..strokeWidth = 1.5
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
+
+        for (final line in d.lines) {
+          final p1 = Offset(line.x1 * effectiveSize.width, line.y1 * effectiveSize.height);
+          final p2 = Offset(line.x2 * effectiveSize.width, line.y2 * effectiveSize.height);
+          canvas.drawLine(p1, p2, borderPaint);
+        }
       }
 
       final pointPaint = Paint()
-        ..color = d.color
+        ..color = lineColor
         ..style = PaintingStyle.fill;
 
-      for (final p in d.points) {
+      for (int idx = 0; idx < d.lines.length; idx++) {
+        final line = d.lines[idx];
         canvas.drawCircle(
-          Offset(p.dx * effectiveSize.width, p.dy * effectiveSize.height),
+          Offset(line.x1 * effectiveSize.width, line.y1 * effectiveSize.height),
           4,
           pointPaint,
         );
+        canvas.drawCircle(
+          Offset(line.x2 * effectiveSize.width, line.y2 * effectiveSize.height),
+          4,
+          pointPaint,
+        );
+
+        final isLineComplete = !(line.x1 == line.x2 && line.y1 == line.y2);
+        if (isLineComplete) {
+          final start = Offset(line.x1 * effectiveSize.width, line.y1 * effectiveSize.height);
+          final end = Offset(line.x2 * effectiveSize.width, line.y2 * effectiveSize.height);
+          final midPoint = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
+          final lineNumber = idx + 1;
+
+          final textPainter = TextPainter(
+            text: const TextSpan(
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.text = TextSpan(
+            text: '$lineNumber',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+          textPainter.layout();
+
+          final badgeRadius = (textPainter.width > textPainter.height
+                  ? textPainter.width
+                  : textPainter.height) /
+              2 +
+              4;
+
+          final badgeBg = Paint()
+            ..color = Colors.black.withValues(alpha: 0.7)
+            ..style = PaintingStyle.fill;
+
+          final badgeBorder = Paint()
+            ..color = Colors.white
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5;
+
+          canvas.drawCircle(midPoint, badgeRadius, badgeBg);
+          canvas.drawCircle(midPoint, badgeRadius, badgeBorder);
+
+          textPainter.paint(
+            canvas,
+            Offset(
+              midPoint.dx - textPainter.width / 2,
+              midPoint.dy - textPainter.height / 2,
+            ),
+          );
+        }
       }
     }
 
     if (cursorPosition != null && directions.isNotEmpty) {
       final activeDir = directions.firstWhereOrNull(
-        (d) => !d.isLocked && d.points.length == 1,
+        (d) => !d.isLocked && d.lines.length == 1 && (d.lines.first.x1 == d.lines.first.x2 && d.lines.first.y1 == d.lines.first.y2),
       );
 
       if (activeDir != null) {
@@ -171,9 +251,9 @@ class _DirectionsPainter extends CustomPainter {
           ..strokeWidth = 2
           ..style = PaintingStyle.stroke;
 
-        final lastPoint = activeDir.points.last;
+        final lastLine = activeDir.lines.last;
         canvas.drawLine(
-          Offset(lastPoint.dx * effectiveSize.width, lastPoint.dy * effectiveSize.height),
+          Offset(lastLine.x1 * effectiveSize.width, lastLine.y1 * effectiveSize.height),
           cursorPosition!,
           previewPaint,
         );
@@ -185,8 +265,8 @@ class _DirectionsPainter extends CustomPainter {
   bool shouldRepaint(covariant _DirectionsPainter oldDelegate) => true;
 }
 
-extension on List<DirectionLine> {
-  DirectionLine? firstWhereOrNull(bool Function(DirectionLine) test) {
+extension on List<Direction> {
+  Direction? firstWhereOrNull(bool Function(Direction) test) {
     try {
       return firstWhere(test);
     } catch (e) {

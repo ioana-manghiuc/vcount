@@ -3,10 +3,10 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import '../providers/directions_provider.dart';
 import '../localization/app_localizations.dart';
-import '../models/direction_line.dart';
+import '../models/direction.dart';
 
 class DirectionCard extends StatefulWidget {
-  final DirectionLine direction;
+  final Direction direction;
   final AppLocalizations? localizations;
 
   const DirectionCard({required this.direction, required this.localizations, super.key});
@@ -112,28 +112,57 @@ class _DirectionCardState extends State<DirectionCard> {
                 onChanged: (v) => provider.updateLabels(_fromController.text, v),
                 enabled: isSelected,
               ),
-              
-              if (direction.points.isNotEmpty) ...[
+
+              if (direction.lines.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  localizations.linesCount((direction.points.length / 2).floor()),
+                  localizations.linesCount(direction.lines.length),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1),
+                        items: List.generate(
+                          direction.lines.length,
+                          (i) => DropdownMenuItem(
+                            value: i,
+                            child: Text(localizations.lineWithNumber(i + 1)),
+                          ),
+                        ),
+                        decoration: InputDecoration(
+                          labelText: localizations.entryLineLabel(
+                            direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1) + 1,
+                          ),
+                          isDense: true,
+                          border: const OutlineInputBorder(),
+                        ),
+                        onChanged: !isSelected
+                            ? null
+                            : (v) {
+                                if (v != null) {
+                                  provider.setLineAsEntry(direction, v);
+                                }
+                              },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              if (direction.lines.isNotEmpty) ...[
                 const SizedBox(height: 4),
-                ...List.generate((direction.points.length / 2).floor(), (lineIndex) {
-                  final p1Index = lineIndex * 2;
-                  final p2Index = lineIndex * 2 + 1;
-                  if (p2Index >= direction.points.length) return const SizedBox.shrink();
-                  
+                ...List.generate(direction.lines.length, (lineIndex) {
                   return _buildLineCoordinates(
                     context,
                     provider,
                     direction,
                     lineIndex,
-                    p1Index,
-                    p2Index,
                     isSelected,
                     localizations,
                   );
@@ -184,15 +213,12 @@ class _DirectionCardState extends State<DirectionCard> {
   Widget _buildLineCoordinates(
     BuildContext context,
     DirectionsProvider provider,
-    DirectionLine direction,
+    Direction direction,
     int lineIndex,
-    int p1Index,
-    int p2Index,
     bool isSelected,
     AppLocalizations localizations
   ) {
-    final p1 = direction.points[p1Index];
-    final p2 = direction.points[p2Index];
+    final line = direction.lines[lineIndex];
     
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -219,7 +245,7 @@ class _DirectionCardState extends State<DirectionCard> {
                   icon: const Icon(Icons.delete_outline, size: 18),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  onPressed: () => provider.deletePointPair(direction, lineIndex),
+                  onPressed: () => provider.deleteLineAtIndex(direction, lineIndex),
                 ),
             ],
           ),
@@ -230,15 +256,16 @@ class _DirectionCardState extends State<DirectionCard> {
                 child: _buildCoordinateField(
                   context,
                   'X1',
-                  p1.dx,
+                  line.x1,
                   (value) {
                     final x = double.tryParse(value);
                     if (x != null) {
-                      provider.updatePointCoordinate(direction, p1Index, x, p1.dy);
+                      provider.updateLineCoordinates(direction, lineIndex, x, line.y1, line.x2, line.y2);
                     }
                   },
                   isSelected,
-                  p1Index,
+                  lineIndex,
+                  'x1',
                 ),
               ),
               const SizedBox(width: 4),
@@ -246,15 +273,16 @@ class _DirectionCardState extends State<DirectionCard> {
                 child: _buildCoordinateField(
                   context,
                   'Y1',
-                  p1.dy,
+                  line.y1,
                   (value) {
                     final y = double.tryParse(value);
                     if (y != null) {
-                      provider.updatePointCoordinate(direction, p1Index, p1.dx, y);
+                      provider.updateLineCoordinates(direction, lineIndex, line.x1, y, line.x2, line.y2);
                     }
                   },
                   isSelected,
-                  p1Index,
+                  lineIndex,
+                  'y1',
                 ),
               ),
             ],
@@ -266,15 +294,16 @@ class _DirectionCardState extends State<DirectionCard> {
                 child: _buildCoordinateField(
                   context,
                   'X2',
-                  p2.dx,
+                  line.x2,
                   (value) {
                     final x = double.tryParse(value);
                     if (x != null) {
-                      provider.updatePointCoordinate(direction, p2Index, x, p2.dy);
+                      provider.updateLineCoordinates(direction, lineIndex, line.x1, line.y1, x, line.y2);
                     }
                   },
                   isSelected,
-                  p2Index,
+                  lineIndex,
+                  'x2',
                 ),
               ),
               const SizedBox(width: 4),
@@ -282,15 +311,16 @@ class _DirectionCardState extends State<DirectionCard> {
                 child: _buildCoordinateField(
                   context,
                   'Y2',
-                  p2.dy,
+                  line.y2,
                   (value) {
                     final y = double.tryParse(value);
                     if (y != null) {
-                      provider.updatePointCoordinate(direction, p2Index, p2.dx, y);
+                      provider.updateLineCoordinates(direction, lineIndex, line.x1, line.y1, line.x2, y);
                     }
                   },
                   isSelected,
-                  p2Index,
+                  lineIndex,
+                  'y2',
                 ),
               ),
             ],
@@ -306,9 +336,10 @@ class _DirectionCardState extends State<DirectionCard> {
     double value,
     Function(String) onChanged,
     bool enabled,
-    int pointIndex,
+    int lineIndex,
+    String coord,
   ) {
-    final key = '$pointIndex-$label';
+    final key = '$lineIndex-$coord';
     
     if (!_coordinateControllers.containsKey(key)) {
       _coordinateControllers[key] = TextEditingController(text: value.toStringAsFixed(3));

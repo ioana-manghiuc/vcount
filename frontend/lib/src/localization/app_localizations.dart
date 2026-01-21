@@ -95,7 +95,8 @@ class AppLocalizations {
   String get appDescription => _localizedStrings['appDescription'] ?? 'Direction-aware vehicle counting with quick drawing and YOLO-ready pipelines.';
   String get results => _localizedStrings['results'] ?? 'Results';
   String get howToChooseModel => _localizedStrings['howToChooseModel'] ?? 'How to Choose the Right Model for Your Hardware';
- 
+  String get yolo11VersionLabel => _localizedStrings['yolo11VersionLabel'] ?? 'YOLO 11 version';
+  
   // Model Info getters
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';
   String get modelYolo11n => _localizedStrings['modelYolo11n'] ?? 'YOLO11n';
@@ -142,6 +143,9 @@ class AppLocalizations {
   String linesCount(int count) => '${lines} (${count}):';
   String intersectionSaved(String name) => _localizedStrings['intersectionSaved']?.replaceAll('{name}', name) ?? 'Intersection "$name" saved in intersections folder!';
   String intersectionLoaded(String name) => _localizedStrings['intersectionLoaded']?.replaceAll('{name}', name) ?? 'Intersection "$name" loaded!';
+  String lineWithNumber(int number) => _localizedStrings['lineWithNumber']?.replaceAll('{number}', number.toString()) ?? 'Line {number}';
+  String exitLineLabel(int number) => _localizedStrings['exitLineLabel']?.replaceAll('{number}', number.toString()) ?? 'Exit Line {number}';
+  String entryLineLabel(int number) => _localizedStrings['entryLineLabel']?.replaceAll('{number}', number.toString()) ?? 'Entry Line {number}';
 
 }
 

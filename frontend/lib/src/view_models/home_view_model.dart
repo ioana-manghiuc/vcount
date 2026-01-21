@@ -16,10 +16,13 @@ class HomeViewModel extends ChangeNotifier {
 
     final thumbnailUrl = await BackendService.uploadVideoAndGetThumbnail(pickedFile.path);
     if (thumbnailUrl == null) {
+      print('⚠️ Failed to get thumbnail from backend');
       isLoading = false;
       notifyListeners();
       return;
     }
+    
+    print('✅ Successfully received thumbnail');
 
     video = VideoModel(path: pickedFile.path, thumbnailUrl: thumbnailUrl);
 

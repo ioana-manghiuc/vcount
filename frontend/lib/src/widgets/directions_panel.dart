@@ -21,10 +21,10 @@ class DirectionsPanel extends StatelessWidget {
         children: [
           DropdownButtonFormField<String>(
             value: provider.selectedModel,
-            decoration: const InputDecoration(
-              labelText: 'YOLO 11 version',
+            decoration: InputDecoration(
+              labelText: localizations.yolo11VersionLabel,
               isDense: true,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
             items: const ['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l', 'yolo11xl']
                 .map(
