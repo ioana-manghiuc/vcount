@@ -103,7 +103,11 @@ class _CanvasArea extends StatelessWidget {
 
     if (viewModel.video?.thumbnailUrl != null && !viewModel.isLoading) {
       return Container(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.15),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondary,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
         child: DrawOnImage(imageUrl: viewModel.video!.thumbnailUrl!),
       );
     }
@@ -111,15 +115,17 @@ class _CanvasArea extends StatelessWidget {
     return GestureDetector(
       onTap: viewModel.isLoading ? null : onPick,
       child: Container(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.25),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondary,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
         child: Stack(
           alignment: Alignment.center,
           children: [
             IgnorePointer(
               child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.outlineVariant),
-                ),
+                decoration: const BoxDecoration(),
               ),
             ),
             if (viewModel.isLoading)
@@ -150,6 +156,8 @@ class _CanvasArea extends StatelessWidget {
                   const SizedBox(height: 12),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         vertical: 14,
                         horizontal: 20,
@@ -186,7 +194,7 @@ class _DirectionsPlaceholder extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
+        color: theme.colorScheme.secondary,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),

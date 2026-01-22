@@ -1,88 +1,39 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-// class AppTheme {
-//   static ThemeData buildLightTheme() {
-//     return ThemeData(
-//       useMaterial3: true,
-//       brightness: Brightness.light,
-//       scaffoldBackgroundColor: const Color.fromARGB(255, 245,236,236),
-//       colorScheme: ColorScheme.light(
-//         primary: const Color.fromARGB(255,124,41,41)!,           // Dark red
-//         onPrimary: Colors.white,
-//         secondary: const Color.fromARGB(255, 109, 12, 12)!,         // Red
-//         onSecondary: Colors.white,
-//         surface: Colors.white,
-//         onSurface: Colors.black,
-//         error: Colors.red[700]!,
-//       ),
-//       appBarTheme: AppBarTheme(
-//         backgroundColor: const Color.fromARGB(255, 232,224,224),
-//         foregroundColor: const Color.fromARGB(255,41,7,6),
-//         elevation: 2,
-//       ),
-//       cardTheme: CardTheme(
-//         color: Colors.grey[50],
-//         elevation: 1,
-//       ),
-//       elevatedButtonTheme: ElevatedButtonThemeData(
-//         style: ElevatedButton.styleFrom(
-//           backgroundColor: const Color.fromARGB(255,124,41,41),
-//           foregroundColor: Colors.white,
-//         ),
-//       ),
-//       textButtonTheme: TextButtonThemeData(
-//         style: TextButton.styleFrom(
-//           foregroundColor: const Color.fromARGB(255,124,41,41),
-//         ),
-//       ),
-//       toggleButtonsTheme: ToggleButtonsThemeData(
-//         fillColor: const Color.fromARGB(255,124,41,41),        // Background when selected
-//         selectedColor: const Color.fromARGB(255, 245,236,236),        // Text color when selected
-//         color: Colors.grey[600],            // Text color when not selected
-//         borderColor: const Color.fromARGB(255,124,41,41),       // Border color
-//         selectedBorderColor: const Color.fromARGB(255,41,7,6),
-//       ),
-//       iconTheme: const IconThemeData(color: Color.fromARGB(255,41,7,6)),
-//     );
-//   }
+ThemeData lightMode = ThemeData(
+  brightness: Brightness.light,
+  colorScheme: ColorScheme.light(
+    surface: const Color.fromARGB(255, 245, 231, 223), // = BACKGROUND !!!!!!
+    onSurface: const Color.fromARGB(255, 39, 6, 6),
+    primary: const Color.fromARGB(255, 98, 29, 22), // e.g. start button
+    onPrimary: const Color.fromARGB(255, 245, 231, 223), 
+    secondary: const Color.fromARGB(255, 228, 210, 200), // app bar, direction panel, canvas bgk
+    //primaryContainer: const Color.fromARGB(255, 229, 190, 178), // direction panel
+    primaryContainer: const Color.fromARGB(255, 235, 219, 209), // direction panel
+    secondaryContainer: const Color.fromARGB(255, 185, 152, 141), // direction card
+    onSecondaryFixed: const Color.fromARGB(255, 185, 134, 118), // selected direction card
+    tertiary:const Color.fromARGB(255, 22, 114, 0), // editable text
+    onTertiary: const Color.fromARGB(255, 36, 17, 9) // APP BAR TEXT
+    
+  ),
+  fontFamily: GoogleFonts.quantico().fontFamily,
+);
 
-//   static ThemeData buildDarkTheme() {
-//     return ThemeData(
-//       useMaterial3: true,
-//       brightness: Brightness.dark,
-//       scaffoldBackgroundColor: Colors.black,
-//       colorScheme: ColorScheme.dark(
-//         primary: Colors.red[400]!,            // Lighter red for dark mode
-//         onPrimary: Colors.black,
-//         secondary: Colors.red[300]!,          // Light red
-//         onSecondary: Colors.black,
-//         surface: Colors.grey[900]!,
-//         onSurface: Colors.white,
-//         background: Colors.black,
-//         onBackground: Colors.white,
-//         error: Colors.red[400]!,
-//       ),
-//       appBarTheme: AppBarTheme(
-//         backgroundColor: Colors.grey[900],
-//         foregroundColor: Colors.white,
-//         elevation: 2,
-//       ),
-//       cardTheme: CardTheme(
-//         color: Colors.grey[850],
-//         elevation: 1,
-//       ),
-//       elevatedButtonTheme: ElevatedButtonThemeData(
-//         style: ElevatedButton.styleFrom(
-//           backgroundColor: Colors.red[400],
-//           foregroundColor: Colors.black,
-//         ),
-//       ),
-//       textButtonTheme: TextButtonThemeData(
-//         style: TextButton.styleFrom(
-//           foregroundColor: Colors.red[400],
-//         ),
-//       ),
-//       iconTheme: const IconThemeData(color: Colors.white70),
-//     );
-//   }
-// }
+ThemeData darkMode = ThemeData(
+  brightness: Brightness.dark,
+  colorScheme: ColorScheme.dark(
+    surface: const Color.fromARGB(255, 24, 13, 12), // = BACKGROUND !!!!!!
+    onSurface: const Color.fromARGB(255, 245, 231, 223),
+    primary: const Color.fromARGB(255, 241, 206, 195), // e.g. start button
+    onPrimary: const Color.fromARGB(255, 84, 3, 27), 
+    secondary: const Color.fromARGB(255, 40, 21, 19), // app bar, direction panel, canvas bgk
+    onSecondary: const Color.fromARGB(255, 236, 224, 216),
+    primaryContainer: const Color.fromARGB(255, 40, 21, 19), // direction panel
+    secondaryContainer: const Color.fromARGB(255, 61, 38, 27), // direction card
+    onSecondaryFixed: const Color.fromARGB(255, 116, 84, 75), // selected direction card
+    tertiary:Color.fromARGB(255, 100, 170, 83), // editable text
+    onTertiary: const Color.fromARGB(255, 185, 152, 141) //
+  ),
+  fontFamily: GoogleFonts.quantico().fontFamily,
+);

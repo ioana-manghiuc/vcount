@@ -54,6 +54,9 @@ class _DirectionCardState extends State<DirectionCard> {
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         elevation: isSelected ? 4 : 1,
+        color: isSelected
+            ? Theme.of(context).colorScheme.onSecondaryFixed
+            : Theme.of(context).colorScheme.secondaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
@@ -91,10 +94,10 @@ class _DirectionCardState extends State<DirectionCard> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? Colors.green
+                          ? Theme.of(context).colorScheme.tertiary
                           : direction.isLocked
-                              ? Colors.grey[700]
-                              : Colors.black,
+                              ? Theme.of(context).colorScheme.onTertiary
+                              : Theme.of(context).colorScheme.surface,
                     ),
                   ),
                 ],
@@ -224,7 +227,7 @@ class _DirectionCardState extends State<DirectionCard> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

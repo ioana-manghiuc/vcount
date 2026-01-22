@@ -61,6 +61,8 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     final languageProvider = context.watch<LanguageProvider>();
 
     return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      foregroundColor: Theme.of(context).colorScheme.onSecondary,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
@@ -77,7 +79,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
       actions: [
         IconButton(
           tooltip: AppLocalizations.of(context)!.userManual,
-          icon: const Icon(Icons.info_outline),
+          icon: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
           onPressed: () {
             Navigator.of(context).pushNamed('/about');
           },
@@ -88,6 +90,8 @@ class _AppBarWidgetState extends State<AppBarWidget> {
           child: DropdownButton<String>(
             focusNode: _focusNode,
             value: languageProvider.locale.languageCode,
+            iconEnabledColor: Theme.of(context).colorScheme.primary,  
+            iconDisabledColor: Theme.of(context).colorScheme.onSecondaryFixed,  
             items: [
               DropdownMenuItem(
                 value: 'en',
@@ -102,7 +106,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Text('EN'),
+                    Text('EN', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                   ],
                 ),
               ),
@@ -119,7 +123,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Text('RO'),
+                    Text('RO', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                   ],
                 ),
               ),
@@ -136,6 +140,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         IconButton(
           icon: Icon(
             themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
+            color: Theme.of(context).colorScheme.primary
           ),
           onPressed: themeProvider.toggleTheme,
           tooltip: themeProvider.isDark ? 'Light Mode' : 'Dark Mode',

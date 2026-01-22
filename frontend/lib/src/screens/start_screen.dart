@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../localization/app_localizations.dart';
-
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
 
@@ -12,14 +11,7 @@ class StartScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              theme.colorScheme.primary.withOpacity(0.08),
-              theme.colorScheme.secondaryContainer.withOpacity(0.12),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: theme.colorScheme.surface,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -29,6 +21,7 @@ class StartScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
+              color: theme.colorScheme.secondary,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 28),
                 child: Column(

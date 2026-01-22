@@ -43,8 +43,10 @@ class _DirectionsScreenBody extends StatelessWidget {
             flex: 2,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
               child: Container(
                 decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: Border.all(
                     color: Theme.of(context).colorScheme.outlineVariant,
                   ),

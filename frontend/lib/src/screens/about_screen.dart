@@ -18,7 +18,7 @@ class AboutScreen extends StatelessWidget {
           children: [
             Text(
               localizations!.userManualIntro,
-              style: theme.textTheme.titleLarge,
+              style: theme.textTheme.headlineLarge,
             ),
             const SizedBox(height: 12),
             _StepRow(
@@ -39,8 +39,12 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Card(
-              child: Padding(
+              child: Container(
                 padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: theme.colorScheme.secondary,
+                ),
                 child: Text(
                   localizations.userManualTip,
                   style: theme.textTheme.bodyMedium,
@@ -74,16 +78,16 @@ class _StepRow extends StatelessWidget {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
+              color: theme.colorScheme.primary,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Text(number, style: theme.textTheme.titleMedium),
+            child: Text(number, style: TextStyle(color: theme.colorScheme.onPrimary)),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: theme.textTheme.bodyLarge,
+              style: theme.textTheme.titleLarge,
             ),
           ),
         ],

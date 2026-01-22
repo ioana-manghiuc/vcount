@@ -14,8 +14,15 @@ class DirectionsPanel extends StatelessWidget {
     final provider = context.watch<DirectionsProvider>();
     final localizations = AppLocalizations.of(context)!;
 
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(12),  
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
