@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
+import '../view_models/directions_view_model.dart';
 import '../localization/app_localizations.dart';
-import '../models/direction.dart';
+import '../models/direction_model.dart';
 
 class DirectionCard extends StatefulWidget {
-  final Direction direction;
+  final DirectionModel direction;
   final AppLocalizations? localizations;
 
   const DirectionCard({required this.direction, required this.localizations, super.key});
@@ -39,7 +39,7 @@ class _DirectionCardState extends State<DirectionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DirectionsProvider>();
+    final provider = context.watch<DirectionsViewModel>();
     final direction = widget.direction;
     final localizations = widget.localizations;
     final isSelected = provider.selectedDirection == direction;
@@ -215,8 +215,8 @@ class _DirectionCardState extends State<DirectionCard> {
 
   Widget _buildLineCoordinates(
     BuildContext context,
-    DirectionsProvider provider,
-    Direction direction,
+    DirectionsViewModel provider,
+    DirectionModel direction,
     int lineIndex,
     bool isSelected,
     AppLocalizations localizations
@@ -369,7 +369,7 @@ class _DirectionCardState extends State<DirectionCard> {
   }
 
   void _pickColor(BuildContext context) {
-    final provider = context.read<DirectionsProvider>();
+    final provider = context.read<DirectionsViewModel>();
     final direction = widget.direction;
     final localizations = widget.localizations;
     Color tempColor = direction.color;

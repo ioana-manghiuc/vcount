@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
+import '../view_models/directions_view_model.dart';
 import '../utils/backend_service.dart';
 import '../view_models/home_view_model.dart';
 import '../widgets/app_bar.dart';
@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Future<void> _handlePick(BuildContext context, HomeViewModel vm) async {
-    context.read<DirectionsProvider>().reset();
+    context.read<DirectionsViewModel>().reset();
     await vm.pickVideo();
   }
 
@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
       create: (_) => HomeViewModel(),
       child: Consumer<HomeViewModel>(
         builder: (context, vm, _) {
-          final directionsProvider = context.watch<DirectionsProvider>();
+          final directionsProvider = context.watch<DirectionsViewModel>();
 
           return Scaffold(
             appBar: const AppBarWidget(titleKey: 'appTitle'),

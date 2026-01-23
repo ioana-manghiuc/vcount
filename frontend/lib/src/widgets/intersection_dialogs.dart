@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/src/localization/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import '../providers/directions_provider.dart';
+import '../view_models/directions_view_model.dart';
 
 Future<void> showSaveIntersectionDialog(
   BuildContext context,
-  DirectionsProvider provider,
+  DirectionsViewModel provider,
   Size canvasSize,
   AppLocalizations localizations,
 ) async {
@@ -55,7 +55,7 @@ Future<void> showSaveIntersectionDialog(
                 SnackBar(content: Text(localizations.intersectionSaved(name))),
               );
             },
-            child: const Text('Save'),
+            child: Text(localizations.save),
           ),
         ],
       ),
@@ -65,7 +65,7 @@ Future<void> showSaveIntersectionDialog(
 
 Future<void> showLoadIntersectionDialog(
   BuildContext context,
-  DirectionsProvider provider,
+  DirectionsViewModel provider,
   AppLocalizations localizations,
 ) async {
 

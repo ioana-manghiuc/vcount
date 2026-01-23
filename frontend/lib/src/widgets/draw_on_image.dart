@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
-import '../models/direction.dart';
+import '../view_models/directions_view_model.dart';
+import '../models/direction_model.dart';
 
 class DrawOnImage extends StatefulWidget {
   final String imageUrl;
@@ -46,7 +46,7 @@ class _DrawOnImageState extends State<DrawOnImage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DirectionsProvider>();
+    final provider = context.watch<DirectionsViewModel>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -113,8 +113,8 @@ class _DrawOnImageState extends State<DrawOnImage> {
 }
 
 class _DirectionsPainter extends CustomPainter {
-  final List<Direction> directions;
-  final Direction? selectedDirection;
+  final List<DirectionModel> directions;
+  final DirectionModel? selectedDirection;
   final Color currentColor;
   final Offset? cursorPosition;
   final Size canvasSize;
@@ -265,8 +265,8 @@ class _DirectionsPainter extends CustomPainter {
   bool shouldRepaint(covariant _DirectionsPainter oldDelegate) => true;
 }
 
-extension on List<Direction> {
-  Direction? firstWhereOrNull(bool Function(Direction) test) {
+extension on List<DirectionModel> {
+  DirectionModel? firstWhereOrNull(bool Function(DirectionModel) test) {
     try {
       return firstWhere(test);
     } catch (e) {

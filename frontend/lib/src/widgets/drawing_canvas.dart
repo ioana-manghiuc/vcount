@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
+import '../view_models/directions_view_model.dart';
 
 class DrawingCanvas extends StatelessWidget {
   final String imageUrl;
@@ -9,7 +9,7 @@ class DrawingCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DirectionsProvider>();
+    final provider = context.watch<DirectionsViewModel>();
 
     return GestureDetector(
       onPanStart: (details) {

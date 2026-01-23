@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/directions_provider.dart';
+import '../view_models/directions_view_model.dart';
 import '../localization/app_localizations.dart';
 import '../screens/model_info_screen.dart';
 import 'direction_card.dart';
@@ -11,7 +11,7 @@ class DirectionsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DirectionsProvider>();
+    final provider = context.watch<DirectionsViewModel>();
     final localizations = AppLocalizations.of(context)!;
 
     return Container(

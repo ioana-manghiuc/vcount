@@ -5,7 +5,7 @@ import 'routing/route_handler.dart';
 import 'providers/theme_provider.dart';
 import 'providers/language_provider.dart';
 import 'localization/app_localizations.dart';
-import 'providers/directions_provider.dart';
+import 'view_models/directions_view_model.dart';
 import 'theme/app_theme.dart';
 class VehicleCounterApp extends StatelessWidget {
   const VehicleCounterApp({super.key});
@@ -16,7 +16,7 @@ class VehicleCounterApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
-        ChangeNotifierProvider(create: (context) => DirectionsProvider())
+        ChangeNotifierProvider(create: (context) => DirectionsViewModel())
       ],
       child: Consumer2<LanguageProvider, ThemeProvider>(
         builder: (context, language, theme, _) {
