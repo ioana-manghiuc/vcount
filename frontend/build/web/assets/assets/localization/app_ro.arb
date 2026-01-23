@@ -1,0 +1,98 @@
+{
+  "appTitle": "Numărător Vehicule",
+  "uploadVideo": "Încarcă video",
+  "drawDirections": "Desenează direcții",
+  "pickVideo": "Selectează Video",
+  "addDirection": "Adaugă Direcție",
+  "from": "De la",
+  "to": "Către",
+  "save": "Salvează",
+  "delete": "Șterge",
+  "sendToBackend": "Începe numărarea!",
+  "locked": "Blocat",
+  "editable": "Editabil",
+  "settings": "Setări",
+  "theme": "Temă",
+  "language": "Limbă",
+  "directionLabel": "Direcție",
+  "direction_ns": "Nord → Sud",
+  "direction_sn": "Sud → Nord",
+  "direction_ew": "Est → Vest",
+  "direction_we": "Vest → Est",
+  "pickAColor": "Alege o culoare",
+  "cancel": "Anulează",
+  "directionError": "Eroare de Direcție",
+  "pleaseDrawDirection": "Te rog desenează o direcție pe pânză mai întâi.",
+  "error": "Eroare",
+  "noDirectionSelected": "Nicio direcție selectată.",
+  "waitingForServer": "Așteptăm răspunsul serverului...",
+  "userManual": "Manual utilizator",
+  "userManualIntro": "Urmează acești pași ca să începi:",
+  "userManualStepUpload": "Apasă pe canvas sau pe butonul de încărcare pentru a selecta un video.",
+  "userManualStepWait": "Așteaptă ca serverul să pregătească miniatura.",
+  "userManualStepDraw": "Apasă pentru a adăuga puncte pe imagine și a crea linii de direcție, adaugă etichete și blochează-le.",
+  "userManualStepSend": "Trimite direcțiile blocate către backend.",
+  "userManualTip": "Sfat: Poți schimba culorile înainte să desenezi o direcție nouă.",
+  "tapCanvasToUpload": "Atinge canvasul sau butonul pentru a încărca un videoclip",
+  "modelInfoTooltip": "Faceți clic pentru mai multe informații despre modele",
+  "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
+  "multipleLinesDirection" : "Linii multiple pentru direcție",
+  "yolo11VersionLabel": "Versiune YOLO 11",
+  "start": "Start",
+  "startScreenWelcome": "Bine ai venit la VCount!",
+  "resultsTitle": "Rezultate",
+  "back": "Înapoi",
+  "uploadVideoToStartDrawingDirections": "Încarcă un video pentru a începe să desenezi direcții",
+  "directionWarning": "Direcția trebuie să aibă cel puțin 2 puncte",
+  "intersectionName": "Numele Intersecției",
+  "intersectionNameHint": "ex. Str. Iuliu Maniu – Str. Vlad Țepeș",
+  "noSavedIntersectionsFound": "Nu s-au găsit intersecții salvate.",
+  "close": "Închide",
+  "saveIntersection": "Salvează Intersecție",
+  "loadIntersection": "Încarcă Intersecție",
+  "appDescription": "Numărare de vehicule cu conștientizare direcțională, desen rapid și pipeline-uri pregătite pentru YOLO.",
+  "intersectionSaved": "Intersecția \"{name}\" a fost salvată în dosarul de intersecții!",
+  "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
+  "invalidFileContent": "Conținut de fișier invalid. Te rog selectează un fișier JSON valid pentru intersecție.",
+  
+  "loadFromDisk": "Selectează fișier",
+  "@intersectionSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "intersectionLoaded": "Intersecția \"{name}\" a fost încărcată!",
+  "@intersectionLoaded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "intersectionDeleted": "Intersecția \"{name}\" a fost ștearsă!",
+  "@intersectionDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsAndLineRequired": "Etichetele De la / Către sunt necesare și desenează cel puțin o linie.",
+  "line": "Linie",
+  "lines": "Linii",
+  "entryLineLabel": "Prima linie (intrare)",
+  "exitLineLabel": "A doua linie (ieșire)",
+  "lineWithNumber": "Linia {number}",
+  "@lineWithNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadResults": "Descarcă Rezultate",
+  "resultsDownloaded": "Rezultatele au fost descărcate cu succes",
+  "processingVideo": "Se procesează videoclipul..."
+}

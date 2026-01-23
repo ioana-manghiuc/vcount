@@ -1,0 +1,98 @@
+{
+  "appTitle": "Vehicle Counter",
+  "uploadVideo": "Upload video",
+  "drawDirections": "Draw directions",
+  "pickVideo": "Pick Video",
+  "addDirection": "Add Direction",
+  "from": "From",
+  "to": "To",
+  "save": "Save",
+  "delete": "Delete",
+  "sendToBackend": "Start counting!",
+  "locked": "Locked",
+  "editable": "Editable",
+  "settings": "Settings",
+  "theme": "Theme",
+  "language": "Language",
+  "directionLabel": "Direction",
+  "direction_ns": "North → South",
+  "direction_sn": "South → North",
+  "direction_ew": "East → West",
+  "direction_we": "West → East",
+  "pickAColor": "Pick a color",
+  "cancel": "Cancel",
+  "directionError": "Direction Error",
+  "pleaseDrawDirection": "Please draw a direction on the canvas first.",
+  "error": "Error",
+  "noDirectionSelected": "No direction selected.",
+  "waitingForServer": "Waiting for server...",
+  "userManual": "User manual",
+  "userManualIntro": "Follow these steps to get started:",
+  "userManualStepUpload": "Click the canvas or upload button to select a video.",
+  "userManualStepWait": "Wait while the server prepares the thumbnail.",
+  "userManualStepDraw": "Click to add points on the image to create direction lines, add labels, and lock them.",
+  "userManualStepSend": "Send the locked directions to the backend.",
+  "userManualTip": "Tip: You can change colors before drawing a new direction.",
+  "tapCanvasToUpload": "Tap the canvas or button to upload a video",
+  "modelInfoTooltip": "Click for more information about models",
+  "howToChooseModel": "How to choose the right YOLO11 version?",
+  "multipleLinesDirection" : "Multiple lines for direction",
+  "yolo11VersionLabel": "YOLO 11 version",
+  "start": "Start",
+  "startScreenWelcome": "Welcome to VCount!",
+  "resultsTitle": "Results",
+  "back": "Back",
+  "uploadVideoToStartDrawingDirections": "Upload a video to start drawing directions",
+  "directionWarning": "Direction must have at least 2 points",
+  "intersectionName": "Intersection Name",
+  "intersectionNameHint": "e.g. Baker St – Paddington St",
+  "noSavedIntersectionsFound": "No saved intersections found.",
+  "close": "Close",
+  "saveIntersection": "Save Intersection",
+  "loadIntersection": "Load Intersection",
+  "appDescription": "Direction-aware vehicle counting with quick drawing and YOLO-ready pipelines.",
+  "intersectionSaved": "Intersection \"{name}\" saved in intersections folder!",
+  "howToChooseModel": "How to Choose the Right Model for Your Hardware",
+  "loadFromDisk": "Add file",
+  "invalidFileContent": "Invalid file content. Please select a valid intersection JSON file.",
+
+  "@intersectionSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "intersectionLoaded": "Intersection \"{name}\" loaded!",
+  "@intersectionLoaded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "intersectionDeleted": "Intersection \"{name}\" deleted!",
+  "@intersectionDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsAndLineRequired": "From / To labels required and draw at least one line.",
+  "line": "Line",
+  "lines": "Lines",
+  "entryLineLabel": "ENTRY",
+  "exitLineLabel": "EXIT",
+  "lineWithNumber": "Line {number}",
+  "@lineWithNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadResults": "Download Results",
+  "resultsDownloaded": "Results downloaded successfully",
+  "processingVideo": "Processing video..."
+}
