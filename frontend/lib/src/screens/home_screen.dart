@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import '../view_models/directions_view_model.dart';
+import '../view_models/results_view_model.dart';
 import '../utils/backend_service.dart';
 import '../view_models/home_view_model.dart';
 import '../widgets/app_bar.dart';
@@ -15,6 +16,39 @@ class HomeScreen extends StatelessWidget {
   Future<void> _handlePick(BuildContext context, HomeViewModel vm) async {
     context.read<DirectionsViewModel>().reset();
     await vm.pickVideo();
+  }
+
+  Future<void> _handleSendDirections(
+    BuildContext context,
+    HomeViewModel homeViewModel,
+    DirectionsViewModel directionsViewModel,
+  ) async {
+    final resultsViewModel = context.read<ResultsViewModel>();
+
+    // Show loading state
+    resultsViewModel.setLoading(true);
+
+    // Navigate to results screen
+    if (context.mounted) {
+      Navigator.of(context).pushNamed('/results');
+    }
+
+    // Send directions to backend
+    final results = await BackendService.sendDirections(
+      homeViewModel.video!.path,
+      directionsViewModel.serializeDirections(),
+      directionsViewModel.selectedModel,
+    );
+
+    // Update results view model with the response
+    if (context.mounted) {
+      if (results != null) {
+        resultsViewModel.setResults(results);
+      } else {
+        resultsViewModel.setError('Failed to process vehicle counting');
+      }
+      resultsViewModel.setLoading(false);
+    }
   }
 
   @override
@@ -62,11 +96,7 @@ class HomeScreen extends StatelessWidget {
                                 child: ElevatedButton(
                                   onPressed: directionsProvider.canSend
                                       ? () async {
-                                          await BackendService.sendDirections(
-                                            vm.video!.path,
-                                            directionsProvider.serializeDirections(),
-                                            directionsProvider.selectedModel,
-                                          );
+                                          await _handleSendDirections(context, vm, directionsProvider);
                                         }
                                       : null,
                                   child: Text(localizations.sendToBackend),

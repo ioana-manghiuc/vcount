@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/direction_model.dart';
 import '../models/line_model.dart';
-import 'package:hive/hive.dart';
 import '../utils/file_picker_helper.dart';
+import '../models/intersection_model.dart';
 import 'dart:io';
+import 'package:hive/hive.dart';
 
 class DirectionsViewModel extends ChangeNotifier {
     final List<DirectionModel> _directions = [];
@@ -22,6 +23,8 @@ class DirectionsViewModel extends ChangeNotifier {
 
     bool get canSend => _directions.any((d) => d.isLocked);
     bool get canDraw => _selected != null && !_selected!.isLocked;
+
+    IntersectionModel? file;
 
   void reset() {
       _directions.clear();
@@ -244,4 +247,15 @@ class DirectionsViewModel extends ChangeNotifier {
       await file.delete();
     }
   }
+
+  Future<IntersectionModel?> pickIntersectionFile() async{
+    final pickedFile = await FilePickerHelper.pickIntersectionJson();
+    if (pickedFile == null) return null;
+
+    file = pickedFile;
+    loadIntersectionFromData(pickedFile.toJson());
+    notifyListeners();
+    return pickedFile;
+  }
+
 }

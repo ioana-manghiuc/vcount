@@ -14,6 +14,22 @@ Future<void> showSaveIntersectionDialog(
 ) async {
   final nameController = TextEditingController();
 
+  Future<void> _handlePickFile() async {
+    final result = await provider.pickIntersectionFile();
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.invalidFileContent)),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(localizations.intersectionLoaded(
+        nameController.text.isEmpty ? localizations.loadIntersection : nameController.text,
+      ))),
+    );
+    Navigator.pop(context);
+  }
   await showDialog(
     context: context,
     barrierDismissible: false,
@@ -68,6 +84,21 @@ Future<void> showLoadIntersectionDialog(
   DirectionsViewModel provider,
   AppLocalizations localizations,
 ) async {
+
+  Future<void> _handlePickFile() async {
+    final result = await provider.pickIntersectionFile();
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.invalidFileContent)),
+      );
+      return;
+    }
+
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(localizations.intersectionLoaded(result.name))),
+    );
+  }
 
   final dir = await getApplicationDocumentsDirectory();
   final intersectionsDir = Directory(p.join(dir.path, 'intersections'));
@@ -133,6 +164,10 @@ Future<void> showLoadIntersectionDialog(
           ),
         ),
         actions: [
+          TextButton(
+            onPressed: _handlePickFile,
+            child: Text(localizations.loadFromDisk),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(localizations.close),

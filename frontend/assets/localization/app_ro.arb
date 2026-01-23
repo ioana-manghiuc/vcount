@@ -8,7 +8,7 @@
   "to": "Către",
   "save": "Salvează",
   "delete": "Șterge",
-  "sendToBackend": "Trimite la Backend",
+  "sendToBackend": "Începe numărarea!",
   "locked": "Blocat",
   "editable": "Editabil",
   "settings": "Setări",
@@ -53,6 +53,9 @@
   "appDescription": "Numărare de vehicule cu conștientizare direcțională, desen rapid și pipeline-uri pregătite pentru YOLO.",
   "intersectionSaved": "Intersecția \"{name}\" a fost salvată în dosarul de intersecții!",
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
+  "invalidFileContent": "Conținut de fișier invalid. Te rog selectează un fișier JSON valid pentru intersecție.",
+  
+  "loadFromDisk": "Selectează fișier",
   "@intersectionSaved": {
     "placeholders": {
       "name": {
@@ -88,5 +91,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "downloadResults": "Descarcă Rezultate",
+  "resultsDownloaded": "Rezultatele au fost descărcate cu succes",
+  "processingVideo": "Se procesează videoclipul..."
 }

@@ -34,7 +34,6 @@ class AppLocalizations {
         userManualMap.map((key, value) => MapEntry(key, value.toString())),
       );
     } catch (e) {
-      // If user manual file doesn't exist, continue without it
     }
     
     try {
@@ -45,7 +44,6 @@ class AppLocalizations {
         modelInfoMap.map((key, value) => MapEntry(key, value.toString())),
       );
     } catch (e) {
-      // If model info file doesn't exist, continue without it
     }
     
     return true;
@@ -65,7 +63,7 @@ class AppLocalizations {
   String get save => _localizedStrings['save'] ?? 'Save';
   String get delete => _localizedStrings['delete'] ?? 'Delete';
   String get start => _localizedStrings['start'] ?? 'Start';
-  String get sendToBackend => _localizedStrings['sendToBackend'] ?? 'Send to Backend';
+  String get sendToBackend => _localizedStrings['sendToBackend'] ?? 'Start counting!';
   String get locked => _localizedStrings['locked'] ?? 'Locked';
   String get editable => _localizedStrings['editable'] ?? 'Editable';
   String get settings => _localizedStrings['settings'] ?? 'Settings';
@@ -96,6 +94,8 @@ class AppLocalizations {
   String get results => _localizedStrings['results'] ?? 'Results';
   String get howToChooseModel => _localizedStrings['howToChooseModel'] ?? 'How to Choose the Right Model for Your Hardware';
   String get yolo11VersionLabel => _localizedStrings['yolo11VersionLabel'] ?? 'YOLO 11 version';
+  String get loadFromDisk => _localizedStrings['loadFromDisk'] ?? 'Load from Disk';
+  String get invalidFileContent => _localizedStrings['invalidFileContent'] ?? 'Invalid file content. Please select a valid intersection JSON file.';
   
   // Model Info getters
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';

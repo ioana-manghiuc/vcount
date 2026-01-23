@@ -1,7 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import sys
 import cv2
 import json
 import logging
@@ -9,16 +11,24 @@ import logging.config
 from pathlib import Path
 from uuid import uuid4
 from datetime import datetime
-from dotenv import load_dotenv
-from logging_config import LOGGING_CONFIG
-from vehicle_counter import VehicleCounter
-from yolo_tracker import YOLOVehicleTracker
+from app.logging.logging_config import LOGGING_CONFIG
+from app.services.vehicle_counter import VehicleCounter
+from app.services.yolo_tracker import YOLOVehicleTracker
 
 logging.config.dictConfig(LOGGING_CONFIG)
 
 logger = logging.getLogger("app")
 
-load_dotenv()
+def resource_path(relative):
+    """
+    Get resource path for both development and packaged (PyInstaller) environments.
+    In PyInstaller's onefile mode, sys._MEIPASS contains the temp extraction directory.
+    In development, we resolve from the current file location.
+    """
+    if hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / relative
+    return (Path(__file__).parent.parent.parent / relative).resolve()
+
 app = FastAPI()
 
 @app.middleware("http")
@@ -36,6 +46,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Try to mount Flutter web build
+WEB_DIR = resource_path(Path("frontend") / "build" / "web")
+if WEB_DIR.exists():
+    logger.info(f"Flutter web build found at {WEB_DIR}, mounting at root")
+    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
+else:
+    logger.warning(f"Flutter web build not found at {WEB_DIR}. Web frontend will not be served.")
 
 UPLOAD_FOLDER = "videos"
 FRAME_FOLDER = "frames"
@@ -178,12 +196,12 @@ async def count_vehicles(
         if not model_name.endswith('.pt'):
             model_name = f"{model_name}-best.pt"
         
-        model_path = os.path.join("models", model_name)
-        if not os.path.exists(model_path):
-            raise HTTPException(404, f"Model not found: {model_name}")
+        model_path = Path(__file__).resolve().parent.parent / "app" / "models" / model_name
+        if not model_path.exists():
+            raise HTTPException(404, f"Model not found: {model_path}")
         
         tracker = YOLOVehicleTracker(
-            model_path=model_path,
+            model_path=str(model_path),
             conf=0.45,
             imgsz=640,
             device=device,

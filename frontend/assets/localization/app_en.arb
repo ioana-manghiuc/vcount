@@ -8,7 +8,7 @@
   "to": "To",
   "save": "Save",
   "delete": "Delete",
-  "sendToBackend": "Send to Backend",
+  "sendToBackend": "Start counting!",
   "locked": "Locked",
   "editable": "Editable",
   "settings": "Settings",
@@ -53,6 +53,9 @@
   "appDescription": "Direction-aware vehicle counting with quick drawing and YOLO-ready pipelines.",
   "intersectionSaved": "Intersection \"{name}\" saved in intersections folder!",
   "howToChooseModel": "How to Choose the Right Model for Your Hardware",
+  "loadFromDisk": "Add file",
+  "invalidFileContent": "Invalid file content. Please select a valid intersection JSON file.",
+
   "@intersectionSaved": {
     "placeholders": {
       "name": {
@@ -88,5 +91,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "downloadResults": "Download Results",
+  "resultsDownloaded": "Results downloaded successfully",
+  "processingVideo": "Processing video..."
 }

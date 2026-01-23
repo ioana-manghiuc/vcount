@@ -33,48 +33,69 @@ class BackendService {
       return null;
     }
   } catch (e, stackTrace) {
+    print('❌ Error uploading video: $e');
+    print(stackTrace);
     return null;
   }
 }
 
-  static Future<bool> sendDirections(
+  static Future<Map<String, dynamic>?> sendDirections(
     String videoPath,
     List<Map<String, dynamic>> directions,
     String modelName,
   ) async {
-    final directionsJson = jsonEncode(directions);
-    
-    print('\n=== SENDING TO BACKEND ===');
-    print('Video Path: $videoPath');
-    print('Model: $modelName');
-    print('Directions JSON:');
-    print(directionsJson);
-    print('\nDirections Detail:');
-    for (final dir in directions) {
-      print('  Direction: ${dir['from']} → ${dir['to']}');
-      print('    ID: ${dir['id']}');
-      print('    Color: ${dir['color']}');
-      print('    Lines (${(dir['lines'] as List).length} total):');
-      for (int i = 0; i < (dir['lines'] as List).length; i++) {
-        final line = (dir['lines'] as List)[i];
-        print('      Line $i: x1=${line['x1']}, y1=${line['y1']}, x2=${line['x2']}, y2=${line['y2']}, isEntry=${line['isEntry']}');
+    try {
+      final directionsJson = jsonEncode(directions);
+      
+      print('\n=== SENDING TO BACKEND ===');
+      print('Video Path: $videoPath');
+      print('Model: $modelName');
+      print('Directions JSON:');
+      print(directionsJson);
+      print('\nDirections Detail:');
+      for (final dir in directions) {
+        print('  Direction: ${dir['from']} → ${dir['to']}');
+        print('    ID: ${dir['id']}');
+        print('    Color: ${dir['color']}');
+        print('    Lines (${(dir['lines'] as List).length} total):');
+        for (int i = 0; i < (dir['lines'] as List).length; i++) {
+          final line = (dir['lines'] as List)[i];
+          print('      Line $i: x1=${line['x1']}, y1=${line['y1']}, x2=${line['x2']}, y2=${line['y2']}, isEntry=${line['isEntry']}');
+        }
       }
+      print('========================\n');
+      
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$backendUrl/count_vehicles'),
+      );
+
+      request.files.add(
+        await http.MultipartFile.fromPath('video', videoPath),
+      );
+
+      request.fields['directions'] = directionsJson;
+      request.fields['model_name'] = modelName;
+
+      final response = await request.send().timeout(
+        const Duration(seconds: 3600),
+        onTimeout: () {
+          throw TimeoutException('Vehicle counting did not complete');
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final body = await response.stream.bytesToString();
+        final resultsJson = jsonDecode(body) as Map<String, dynamic>;
+        return resultsJson;
+      } else {
+        print('❌ Backend returned status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error sending directions: $e');
+      print(stackTrace);
+      return null;
     }
-    print('========================\n');
-    
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$backendUrl/count_vehicles'),
-    );
-
-    request.files.add(
-      await http.MultipartFile.fromPath('video', videoPath),
-    );
-
-    request.fields['directions'] = directionsJson;
-    request.fields['model_name'] = modelName;
-
-    final response = await request.send();
-    return response.statusCode == 200;
   }
 }

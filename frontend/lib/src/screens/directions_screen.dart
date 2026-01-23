@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/video_model.dart';
 import '../widgets/draw_on_image.dart';
 import '../widgets/directions_panel.dart';
 import '../widgets/app_bar.dart';
+import '../view_models/directions_view_model.dart';
+import '../view_models/results_view_model.dart';
+import '../utils/backend_service.dart';
+import '../localization/app_localizations.dart';
 
 class DirectionsScreen extends StatelessWidget {
   final VideoModel video;
@@ -52,13 +57,73 @@ class _DirectionsScreenBody extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const DirectionsPanel(),
+                child: _DirectionsPanelWithSendButton(video: video),
               ),
             ),
           ),
-
         ],
       ),
     );
+  }
+}
+
+class _DirectionsPanelWithSendButton extends StatelessWidget {
+  final VideoModel video;
+
+  const _DirectionsPanelWithSendButton({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    final directionsProvider = context.watch<DirectionsViewModel>();
+    final localizations = AppLocalizations.of(context);
+
+    return Column(
+      children: [
+        const Expanded(child: DirectionsPanel()),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: ElevatedButton(
+            onPressed: directionsProvider.canSend
+                ? () async {
+                    await _sendDirections(context, directionsProvider);
+                  }
+                : null,
+            child: Text(localizations?.translate('sendToBackend') ?? 'Send to Backend'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _sendDirections(
+    BuildContext context,
+    DirectionsViewModel directionsProvider,
+  ) async {
+    final resultsViewModel = context.read<ResultsViewModel>();
+
+    // Show loading state
+    resultsViewModel.setLoading(true);
+
+    // Navigate to results screen
+    if (context.mounted) {
+      Navigator.of(context).pushNamed('/results');
+    }
+
+    // Send directions to backend
+    final results = await BackendService.sendDirections(
+      video.path,
+      directionsProvider.serializeDirections(),
+      directionsProvider.selectedModel,
+    );
+
+    // Update results view model with the response
+    if (context.mounted) {
+      if (results != null) {
+        resultsViewModel.setResults(results);
+      } else {
+        resultsViewModel.setError('Failed to process vehicle counting');
+      }
+      resultsViewModel.setLoading(false);
+    }
   }
 }
