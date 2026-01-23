@@ -1,0 +1,56 @@
+name: Build Linux Binary
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'packaging/**'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    - name: Build Flutter Web
+      run: |
+        cd frontend
+        flutter pub get
+        flutter build web --release
+        cd ..
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install pyinstaller
+        cd ..
+    
+    - name: Build Linux Binary
+      run: |
+        cd packaging
+        bash build-linux.sh ../dist
+        cd ..
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: vehicle-counter-linux
+        path: dist/dist/vehicle-counter
+        retention-days: 30
