@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class BackendService {
@@ -30,11 +31,12 @@ class BackendService {
       return thumbnailUrl;
     } else {
       final errorBody = await response.stream.bytesToString();
+      debugPrint('❌ upload_frame failed (${response.statusCode}): $errorBody');
       return null;
     }
   } catch (e, stackTrace) {
-    print('❌ Error uploading video: $e');
-    print(stackTrace);
+    debugPrint('❌ Error uploading video: $e');
+    debugPrint(stackTrace.toString());
     return null;
   }
 }
@@ -47,23 +49,23 @@ class BackendService {
     try {
       final directionsJson = jsonEncode(directions);
       
-      print('\n=== SENDING TO BACKEND ===');
-      print('Video Path: $videoPath');
-      print('Model: $modelName');
-      print('Directions JSON:');
-      print(directionsJson);
-      print('\nDirections Detail:');
+      debugPrint('\n=== SENDING TO BACKEND ===');
+      debugPrint('Video Path: $videoPath');
+      debugPrint('Model: $modelName');
+      debugPrint('Directions JSON:');
+      debugPrint(directionsJson);
+      debugPrint('\nDirections Detail:');
       for (final dir in directions) {
-        print('  Direction: ${dir['from']} → ${dir['to']}');
-        print('    ID: ${dir['id']}');
-        print('    Color: ${dir['color']}');
-        print('    Lines (${(dir['lines'] as List).length} total):');
+        debugPrint('  Direction: ${dir['from']} → ${dir['to']}');
+        debugPrint('    ID: ${dir['id']}');
+        debugPrint('    Color: ${dir['color']}');
+        debugPrint('    Lines (${(dir['lines'] as List).length} total):');
         for (int i = 0; i < (dir['lines'] as List).length; i++) {
           final line = (dir['lines'] as List)[i];
-          print('      Line $i: x1=${line['x1']}, y1=${line['y1']}, x2=${line['x2']}, y2=${line['y2']}, isEntry=${line['isEntry']}');
+          debugPrint('      Line $i: x1=${line['x1']}, y1=${line['y1']}, x2=${line['x2']}, y2=${line['y2']}, isEntry=${line['isEntry']}');
         }
       }
-      print('========================\n');
+      debugPrint('========================\n');
       
       final request = http.MultipartRequest(
         'POST',
@@ -89,12 +91,12 @@ class BackendService {
         final resultsJson = jsonDecode(body) as Map<String, dynamic>;
         return resultsJson;
       } else {
-        print('❌ Backend returned status code: ${response.statusCode}');
+        debugPrint('❌ Backend returned status code: ${response.statusCode}');
         return null;
       }
     } catch (e, stackTrace) {
-      print('❌ Error sending directions: $e');
-      print(stackTrace);
+      debugPrint('❌ Error sending directions: $e');
+      debugPrint(stackTrace.toString());
       return null;
     }
   }

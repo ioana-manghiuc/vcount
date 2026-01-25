@@ -20,6 +20,7 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_launcher_icons: ^0.13.1
   http: ^1.6.0
+  video_player: ^2.9.2
   flutter_localizations:
     sdk: flutter
   intl: 0.19.0
@@ -41,6 +42,7 @@ flutter:
   assets:
     - assets/localization/
     - assets/images/
+    - assets/animation/
 
 l10n:
   arb-dir: assets/localization

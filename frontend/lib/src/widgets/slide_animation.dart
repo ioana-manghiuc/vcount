@@ -18,14 +18,31 @@ class _SlideTransitionExampleState extends State<SlideTransitionExample>
     end: Offset.zero,
   ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-  @override  void initState() {
+  bool _animationFinished = false;
+
+  @override
+  void initState() {
     super.initState();
-    _controller.forward();
+    _controller.addStatusListener(_handleSlideStatus);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _controller.forward();
+    });
   }
 
-  @override  void dispose() {
+  @override
+  void dispose() {
+    _controller.removeStatusListener(_handleSlideStatus);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _handleSlideStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed && mounted) {
+      setState(() {
+        _animationFinished = true;
+      });
+    }
   }
 
   @override
@@ -34,12 +51,9 @@ class _SlideTransitionExampleState extends State<SlideTransitionExample>
       position: _offsetAnimation,
       child: SizedBox(
         width: 570,
-        child: Image(
-          image: Theme.of(context).brightness == Brightness.dark
-              ? const AssetImage('assets/images/car_darkMode.png')
-              : const AssetImage('assets/images/car_lightMode.png'),
-          fit: BoxFit.contain,
-        ),
+        child: _animationFinished
+            ? Image.asset('assets/images/car.png', fit: BoxFit.contain)
+            : Image.asset('assets/animation/car_moving.gif', fit: BoxFit.contain),
       ),
     );
   }

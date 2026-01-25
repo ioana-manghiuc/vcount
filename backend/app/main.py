@@ -314,12 +314,3 @@ async def count_vehicles(
     except Exception as e:
         logger.exception("Vehicle counting failed")
         raise HTTPException(500, f"Vehicle counting failed: {str(e)}")
-
-
-# Mount Flutter web build LAST, so API routes take precedence
-WEB_DIR = resource_path(Path("frontend") / "build" / "web")
-if WEB_DIR.exists():
-    logger.info(f"Flutter web build found at {WEB_DIR}, mounting at root")
-    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
-else:
-    logger.warning(f"Flutter web build not found at {WEB_DIR}. Web frontend will not be served.")

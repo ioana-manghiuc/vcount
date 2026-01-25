@@ -23,6 +23,7 @@ class VCount extends StatelessWidget {
       child: Consumer2<LanguageProvider, ThemeProvider>(
         builder: (context, language, theme, _) {
           return MaterialApp(
+            title: 'VCount',
             debugShowCheckedModeBanner: false,
             locale: language.locale,
             theme: lightMode,

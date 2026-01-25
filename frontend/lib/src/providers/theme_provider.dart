@@ -6,7 +6,7 @@ class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'theme_is_dark';
 
   ThemeProvider() {
-    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
     isDark = brightness == Brightness.dark;
     _loadThemePreference();
   }
