@@ -71,7 +71,7 @@ class VehicleCounter:
                     'entry_line': entry_line,
                     'exit_line': exit_line,
                 })
-                logger.info(f"Direction {d['from']} → {d['to']}: entry={entry_line}, exit={exit_line}")
+                logger.info(f"Direction {d['from']} - {d['to']}: entry={entry_line}, exit={exit_line}")
             else:
                 logger.warning(f"Direction {d.get('id')} missing entry or exit line, skipping")
         
@@ -136,7 +136,7 @@ class VehicleCounter:
                         category = self.CLASS_MAPPING.get(class_id, 'cars')
                         self.counts[dir_id][category] += 1
                         logger.info(
-                            f"Vehicle {track_id} ({category}) counted for {direction['from']} → {direction['to']} "
+                            f"Vehicle {track_id} ({category}) counted for {direction['from']} - {direction['to']} "
                             f"(Total {category}: {self.counts[dir_id][category]})"
                         )
                     else:
@@ -201,7 +201,7 @@ class VehicleCounter:
         
         for direction in self.directions:
             dir_id = direction['id']
-            results[f"{direction['from']} → {direction['to']}"] = {
+            results[f"{direction['from']} - {direction['to']}"] = {
                 'bikes': self.counts[dir_id]['bikes'],
                 'cars': self.counts[dir_id]['cars'],
                 'buses': self.counts[dir_id]['buses'],

@@ -10,15 +10,15 @@ dependencies:
     sdk: flutter
   path_provider: ^2.1.2
   country_flags: ^4.0.0
-  file_picker: ^6.1.1
+  file_picker: ^10.3.8
   flutter_colorpicker: ^1.0.3
   provider: ^6.0.5
   path: ^1.8.3
   loading_animation_widget:
   hive_flutter: ^1.1.0
-  system_theme: ^2.0.1
+  system_theme: ^3.2.0
   google_fonts: ^6.1.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   http: ^1.6.0
   video_player: ^2.9.2
   flutter_localizations:
@@ -29,6 +29,7 @@ dependencies:
   uuid: ^4.5.2
   shared_preferences: ^2.5.3
   analyzer_plugin: ^0.13.7
+  hive: ^2.2.3
 
 dev_dependencies:
   flutter_test:

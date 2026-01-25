@@ -45,18 +45,20 @@ class BackendService {
     String videoPath,
     List<Map<String, dynamic>> directions,
     String modelName,
+    String intersectionName,
   ) async {
     try {
       final directionsJson = jsonEncode(directions);
       
       debugPrint('\n=== SENDING TO BACKEND ===');
+      debugPrint('Intersection: $intersectionName');
       debugPrint('Video Path: $videoPath');
       debugPrint('Model: $modelName');
       debugPrint('Directions JSON:');
       debugPrint(directionsJson);
       debugPrint('\nDirections Detail:');
       for (final dir in directions) {
-        debugPrint('  Direction: ${dir['from']} → ${dir['to']}');
+        debugPrint('  Direction: ${dir['from']} - ${dir['to']}');
         debugPrint('    ID: ${dir['id']}');
         debugPrint('    Color: ${dir['color']}');
         debugPrint('    Lines (${(dir['lines'] as List).length} total):');
@@ -78,6 +80,7 @@ class BackendService {
 
       request.fields['directions'] = directionsJson;
       request.fields['model_name'] = modelName;
+      request.fields['intersection_name'] = intersectionName;
 
       final response = await request.send().timeout(
         const Duration(seconds: 3600),

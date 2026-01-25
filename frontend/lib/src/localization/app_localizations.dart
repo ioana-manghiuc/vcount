@@ -96,7 +96,8 @@ class AppLocalizations {
   String get yolo11VersionLabel => _localizedStrings['yolo11VersionLabel'] ?? 'YOLO 11 version';
   String get loadFromDisk => _localizedStrings['loadFromDisk'] ?? 'Load from Disk';
   String get invalidFileContent => _localizedStrings['invalidFileContent'] ?? 'Invalid file content. Please select a valid intersection JSON file.';
-  
+  String get twoLinesRequired => _localizedStrings['twoLinesRequired'] ?? 'Direction is defined by two lines! Edit current lines or start a new direction';
+
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';
   String get modelYolo11n => _localizedStrings['modelYolo11n'] ?? 'YOLO11n';
   String get modelYolo11s => _localizedStrings['modelYolo11s'] ?? 'YOLO11s';

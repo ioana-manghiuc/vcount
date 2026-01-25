@@ -5,6 +5,7 @@ import 'package:frontend/src/localization/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import '../view_models/directions_view_model.dart';
+import '../models/intersection_model.dart';
 
 Future<void> showSaveIntersectionDialog(
   BuildContext context,
@@ -14,22 +15,6 @@ Future<void> showSaveIntersectionDialog(
 ) async {
   final nameController = TextEditingController();
 
-  Future<void> _handlePickFile() async {
-    final result = await provider.pickIntersectionFile();
-    if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.invalidFileContent)),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(localizations.intersectionLoaded(
-        nameController.text.isEmpty ? localizations.loadIntersection : nameController.text,
-      ))),
-    );
-    Navigator.pop(context);
-  }
   await showDialog(
     context: context,
     barrierDismissible: false,
@@ -155,6 +140,7 @@ Future<void> showLoadIntersectionDialog(
                 onTap: () async {
                   final jsonString = await file.readAsString();
                   final data = jsonDecode(jsonString);
+                  provider.file = IntersectionModel.fromJson(data);
                   provider.loadIntersectionFromData(data);
 
                   Navigator.pop(context);

@@ -15,10 +15,10 @@
   "theme": "Temă",
   "language": "Limbă",
   "directionLabel": "Direcție",
-  "direction_ns": "Nord → Sud",
-  "direction_sn": "Sud → Nord",
-  "direction_ew": "Est → Vest",
-  "direction_we": "Vest → Est",
+  "direction_ns": "Nord - Sud",
+  "direction_sn": "Sud - Nord",
+  "direction_ew": "Est - Vest",
+  "direction_we": "Vest - Est",
   "pickAColor": "Alege o culoare",
   "cancel": "Anulează",
   "directionError": "Eroare de Direcție",
@@ -54,7 +54,7 @@
   "intersectionSaved": "Intersecția \"{name}\" a fost salvată în dosarul de intersecții!",
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
   "invalidFileContent": "Conținut de fișier invalid. Te rog selectează un fișier JSON valid pentru intersecție.",
-  
+  "twoLinesRequired": "Direcția este definită de două linii! Editează liniile curente sau începe o nouă direcție",
   "loadFromDisk": "Selectează fișier",
   "@intersectionSaved": {
     "placeholders": {
@@ -80,6 +80,7 @@
     }
   },
   "labelsAndLineRequired": "Etichetele De la / Către sunt necesare și desenează cel puțin o linie.",
+  "twoLinesRequired": "Direcția este definită de două linii! Editează liniile curente sau începe o nouă direcție",
   "line": "Linie",
   "lines": "Linii",
   "entryLineLabel": "Prima linie (intrare)",
@@ -93,6 +94,29 @@
     }
   },
   "downloadResults": "Descarcă Rezultate",
+  "downloadJSON": "Descarcă JSON",
+  "downloadCSV": "Descarcă CSV",
   "resultsDownloaded": "Rezultatele au fost descărcate cu succes",
-  "processingVideo": "Se procesează videoclipul..."
+  "processingVideo": "Se procesează videoclipul...",
+  "enterIntersectionName": "Introdu numele intersecției",
+  "confirm": "Confirmă",
+  "vehicleCountsByDirection": "Numărătoare Vehicule pe Direcție",
+  "summary": "Rezumat",
+  "intersection": "Intersecție",
+  "video": "Video",
+  "model": "Model",
+  "processingTime": "Timp de procesare",
+  "totalFrames": "Total cadre",
+  "directionsCount": "Număr direcții",
+  "videoDimensions": "Dimensiuni video",
+  "direction": "Direcție",
+  "cars": "Mașini",
+  "bikes": "Biciclete",
+  "buses": "Autobuze",
+  "trucks": "Camioane",
+  "total": "Total",
+  "noResultsAvailable": "Nu sunt disponibile rezultate",
+  "errorProcessingResults": "Eroare la procesarea rezultatelor",
+  "failedToDownloadJSON": "Eșec la descărcarea JSON",
+  "failedToDownloadCSV": "Eșec la descărcarea CSV"
 }

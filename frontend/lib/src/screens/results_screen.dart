@@ -23,7 +23,13 @@ class ResultsScreen extends StatelessWidget {
           }
 
           if (viewModel.resultsData == null) {
-            return const Center(child: Text('No results available'));
+            final localizations = AppLocalizations.of(context);
+            return Center(
+              child: Text(
+                localizations?.translate('noResultsAvailable') ??
+                    'No results available',
+              ),
+            );
           }
 
           return _buildResultsView(context, viewModel);
@@ -57,6 +63,7 @@ class ResultsScreen extends StatelessWidget {
 
   Widget _buildErrorState(BuildContext context, String error) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
 
     return Center(
       child: Padding(
@@ -67,7 +74,8 @@ class ResultsScreen extends StatelessWidget {
             Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
-              'Error Processing Results',
+              localizations?.translate('errorProcessingResults') ??
+                  'Error Processing Results',
               style: theme.textTheme.titleMedium?.copyWith(
                 color: theme.colorScheme.error,
               ),
@@ -92,84 +100,80 @@ class ResultsScreen extends StatelessWidget {
     final results = data['results'] as Map<String, dynamic>?;
     final metadata = data['metadata'] as Map<String, dynamic>?;
 
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: results != null
+                    ? _buildResultsList(context, results)
+                    : Center(
+                        child: Text(
+                          AppLocalizations.of(context)?.translate('noResultsAvailable') ??
+                              'No results available',
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _buildSummaryAndDownloads(context, viewModel, metadata),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultsList(
+    BuildContext context,
+    Map<String, dynamic> results,
+  ) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(12),
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              viewModel.setLoading(true);
-              final success = await viewModel.downloadResults();
-              viewModel.setLoading(false);
-
-              if (context.mounted) {
-                final localizations = AppLocalizations.of(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      success
-                          ? localizations?.translate('resultsDownloaded') ??
-                              'Results downloaded successfully'
-                          : 'Failed to download results',
-                    ),
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.download),
-            label: Text(
-              AppLocalizations.of(context)?.translate('downloadResults') ??
-                  'Download Results',
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            localizations?.translate('vehicleCountsByDirection') ?? 'Vehicle Counts by Direction',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
-              if (metadata != null) ...[
-                _buildSectionCard(
-                  context,
-                  title: 'Processing Information',
-                  children: [
-                    _buildMetadataItem(
-                      context,
-                      'Video',
-                      metadata['video_file'] ?? 'Unknown',
-                    ),
-                    _buildMetadataItem(
-                      context,
-                      'Model',
-                      metadata['model'] ?? 'Unknown',
-                    ),
-                    _buildMetadataItem(
-                      context,
-                      'Processing Time',
-                      '${metadata['processing_time_seconds']?.toString() ?? '0'}s',
-                    ),
-                    _buildMetadataItem(
-                      context,
-                      'Total Frames',
-                      metadata['total_frames_processed']?.toString() ?? '0',
-                    ),
-                    _buildMetadataItem(
-                      context,
-                      'Video Dimensions',
-                      '${metadata['video_dimensions']?['width']}x${metadata['video_dimensions']?['height']}',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (results != null) ...[
-                _buildSectionCard(
-                  context,
-                  title: 'Vehicle Counts by Direction',
-                  children: [
-                    ..._buildResultsItems(context, results),
-                  ],
-                ),
-              ],
+              ..._buildResultsItems(context, results),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -177,36 +181,143 @@ class ResultsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionCard(
-    BuildContext context, {
-    required String title,
-    required List<Widget> children,
-  }) {
+  Widget _buildSummaryAndDownloads(
+    BuildContext context,
+    ResultsViewModel viewModel,
+    Map<String, dynamic>? metadata,
+  ) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
 
-    return Card(
-      elevation: 2,
-      color: theme.colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizations?.translate('summary') ?? 'Summary',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (metadata != null) ...[
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('intersection') ?? 'Intersection',
+                    metadata['intersection_name'] ?? 'N/A',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('video') ?? 'Video',
+                    metadata['video_file'] ?? 'Unknown',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('model') ?? 'Model',
+                    metadata['model'] ?? 'Unknown',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('processingTime') ?? 'Processing Time',
+                    '${metadata['processing_time_seconds']?.toString() ?? '0'}s',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('totalFrames') ?? 'Total Frames',
+                    metadata['total_frames_processed']?.toString() ?? '0',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('directionsCount') ?? 'Directions Count',
+                    metadata['directions_count']?.toString() ?? '0',
+                  ),
+                  _buildSummaryItem(
+                    context,
+                    localizations?.translate('videoDimensions') ?? 'Video Dimensions',
+                    '${metadata['video_dimensions']?['width']}x${metadata['video_dimensions']?['height']}',
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 12),
-            ...children,
-          ],
-        ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  localizations?.translate('downloadResults') ?? 'Download Results',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    viewModel.setLoading(true);
+                    final success = await viewModel.downloadResults();
+                    viewModel.setLoading(false);
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            success
+                                ? localizations?.translate('resultsDownloaded') ??
+                                    'Results downloaded successfully'
+                                : localizations?.translate('failedToDownloadJSON') ??
+                                    'Failed to download JSON',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.download),
+                  label: Text(
+                    localizations?.translate('downloadJSON') ?? 'Download JSON',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    viewModel.setLoading(true);
+                    final success = await viewModel.downloadResultsAsCSV();
+                    viewModel.setLoading(false);
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            success
+                                ? localizations?.translate('resultsDownloaded') ??
+                                    'Results downloaded successfully'
+                                : localizations?.translate('failedToDownloadCSV') ??
+                                    'Failed to download CSV',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.download),
+                  label: Text(
+                    localizations?.translate('downloadCSV') ?? 'Download CSV',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildMetadataItem(
+  Widget _buildSummaryItem(
     BuildContext context,
     String label,
     String value,
@@ -214,19 +325,25 @@ class ResultsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             value,
-            style: theme.textTheme.bodySmall,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -238,6 +355,7 @@ class ResultsScreen extends StatelessWidget {
     Map<String, dynamic> results,
   ) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
     final items = <Widget>[];
 
     results.forEach((directionId, counts) {
@@ -247,7 +365,7 @@ class ResultsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Container(
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
+                color: theme.colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: theme.colorScheme.outlineVariant,
@@ -258,20 +376,20 @@ class ResultsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Direction: ${_extractDirectionLabel(directionId, counts)}',
+                    '${localizations?.translate('direction') ?? 'Direction'}: ${_extractDirectionLabel(directionId, counts)}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildCountItem(context, 'Cars', counts['cars'] ?? 0),
-                  _buildCountItem(context, 'Bikes', counts['bikes'] ?? 0),
-                  _buildCountItem(context, 'Buses', counts['buses'] ?? 0),
-                  _buildCountItem(context, 'Trucks', counts['trucks'] ?? 0),
+                  _buildCountItem(context, localizations?.translate('cars') ?? 'Cars', counts['cars'] ?? 0),
+                  _buildCountItem(context, localizations?.translate('bikes') ?? 'Bikes', counts['bikes'] ?? 0),
+                  _buildCountItem(context, localizations?.translate('buses') ?? 'Buses', counts['buses'] ?? 0),
+                  _buildCountItem(context, localizations?.translate('trucks') ?? 'Trucks', counts['trucks'] ?? 0),
                   const Divider(height: 12),
                   _buildCountItem(
                     context,
-                    'Total',
+                    localizations?.translate('total') ?? 'Total',
                     (counts['cars'] ?? 0) +
                         (counts['bikes'] ?? 0) +
                         (counts['buses'] ?? 0) +
@@ -322,7 +440,7 @@ class ResultsScreen extends StatelessWidget {
 
   String _extractDirectionLabel(String id, Map<String, dynamic> counts) {
     if (counts.containsKey('from') && counts.containsKey('to')) {
-      return '${counts['from']} → ${counts['to']}';
+      return '${counts['from']} - ${counts['to']}';
     }
     return id.length > 8 ? id.substring(0, 8) : id;
   }

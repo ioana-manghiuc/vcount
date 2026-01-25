@@ -30,10 +30,11 @@ ThemeData darkMode = ThemeData(
     secondary: const Color.fromARGB(255, 31, 21, 19), // app bar, direction panel, canvas bgk
     onSecondary: const Color.fromARGB(255, 236, 224, 216),
     primaryContainer: const Color.fromARGB(255, 40, 21, 19), // direction panel
-    secondaryContainer: const Color.fromARGB(255, 61, 38, 27), // direction card
+    secondaryContainer: const Color.fromARGB(255, 48, 35, 29), // direction card
     onSecondaryFixed: const Color.fromARGB(255, 116, 84, 75), // selected direction card
     tertiary:Color.fromARGB(255, 100, 170, 83), // editable text
-    onTertiary: const Color.fromARGB(255, 185, 152, 141) //
+    onTertiary: const Color.fromARGB(255, 185, 152, 141), //
+    onError: const Color.fromARGB(255, 214, 94, 94)
   ),
   fontFamily: GoogleFonts.quantico().fontFamily,
 );

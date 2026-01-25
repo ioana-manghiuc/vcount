@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
+import '../utils/csv_converter.dart';
 
 class ResultsViewModel extends ChangeNotifier {
   Map<String, dynamic>? _resultsData;
@@ -54,6 +55,36 @@ class ResultsViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = 'Failed to download results: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> downloadResultsAsCSV() async {
+    if (_resultsData == null) return false;
+
+    try {
+      final csvContent = CSVConverter.convertToCSV(_resultsData!);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final filename = 'vehicle_counting_results_$timestamp.csv';
+
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Results as CSV',
+        fileName: filename,
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (outputPath == null) {
+        return false;
+      }
+
+      final file = File(outputPath);
+      await file.writeAsString(csvContent);
+
+      return true;
+    } catch (e) {
+      _error = 'Failed to download CSV: $e';
       notifyListeners();
       return false;
     }

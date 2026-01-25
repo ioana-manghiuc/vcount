@@ -152,6 +152,7 @@ async def count_vehicles(
     video: UploadFile = File(...),
     directions: str = Form(...),
     model_name: str = Form("yolo11n-best.pt"),
+    intersection_name: str = Form(""),
 ):
     try:
         logger.info("count_vehicles called")
@@ -287,6 +288,7 @@ async def count_vehicles(
         results_with_metadata = {
             "results": results,
             "metadata": {
+                "intersection_name": intersection_name,
                 "video_file": video.filename,
                 "model": model_name,
                 "start_time": start_time.isoformat(),

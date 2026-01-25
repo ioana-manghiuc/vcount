@@ -25,6 +25,21 @@ class HomeScreen extends StatelessWidget {
   ) async {
     final resultsViewModel = context.read<ResultsViewModel>();
 
+    final loadedIntersectionName = directionsViewModel.file?.name;
+    
+    final intersectionName = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) => _IntersectionNameDialog(
+        onConfirm: (name) => Navigator.pop(ctx, name),
+        initialValue: loadedIntersectionName,
+      ),
+    );
+
+    if (intersectionName == null || intersectionName.isEmpty) {
+      return;
+    }
+
     resultsViewModel.setLoading(true);
 
     if (context.mounted) {
@@ -35,6 +50,7 @@ class HomeScreen extends StatelessWidget {
       homeViewModel.video!.path,
       directionsViewModel.serializeDirections(),
       directionsViewModel.selectedModel,
+      intersectionName,
     );
 
     if (context.mounted) {
@@ -233,6 +249,86 @@ class _DirectionsPlaceholder extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _IntersectionNameDialog extends StatefulWidget {
+  final Function(String) onConfirm;
+  final String? initialValue;
+
+  const _IntersectionNameDialog({
+    required this.onConfirm,
+    this.initialValue,
+  });
+
+  @override
+  State<_IntersectionNameDialog> createState() =>
+      _IntersectionNameDialogState();
+}
+
+class _IntersectionNameDialogState extends State<_IntersectionNameDialog> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+    if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controller.text.length,
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
+    return StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        title: Text(
+          localizations?.translate('intersectionName') ?? 'Intersection Name',
+        ),
+        content: TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: localizations?.translate('enterIntersectionName') ??
+                'Enter intersection name',
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onChanged: (value) {
+            setState(() {});
+          },
+          onSubmitted: (value) {
+            if (value.isNotEmpty) {
+              widget.onConfirm(value);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(localizations?.translate('cancel') ?? 'Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: _controller.text.isEmpty
+                ? null
+                : () => widget.onConfirm(_controller.text),
+            child: Text(localizations?.translate('confirm') ?? 'Confirm'),
+          ),
+        ],
       ),
     );
   }

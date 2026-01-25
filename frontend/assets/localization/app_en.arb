@@ -15,10 +15,10 @@
   "theme": "Theme",
   "language": "Language",
   "directionLabel": "Direction",
-  "direction_ns": "North → South",
-  "direction_sn": "South → North",
-  "direction_ew": "East → West",
-  "direction_we": "West → East",
+  "direction_ns": "North - South",
+  "direction_sn": "South - North",
+  "direction_ew": "East - West",
+  "direction_we": "West - East",
   "pickAColor": "Pick a color",
   "cancel": "Cancel",
   "directionError": "Direction Error",
@@ -55,6 +55,7 @@
   "howToChooseModel": "How to Choose the Right Model for Your Hardware",
   "loadFromDisk": "Add file",
   "invalidFileContent": "Invalid file content. Please select a valid intersection JSON file.",
+  "twoLinesRequired": "Direction is defined by two lines! Edit current lines or start a new direction",
 
   "@intersectionSaved": {
     "placeholders": {
@@ -80,6 +81,7 @@
     }
   },
   "labelsAndLineRequired": "From / To labels required and draw at least one line.",
+  "twoLinesRequired": "Direction is defined by two lines! Edit current lines or start a new direction",
   "line": "Line",
   "lines": "Lines",
   "entryLineLabel": "ENTRY",
@@ -93,6 +95,29 @@
     }
   },
   "downloadResults": "Download Results",
+  "downloadJSON": "Download JSON",
+  "downloadCSV": "Download CSV",
   "resultsDownloaded": "Results downloaded successfully",
-  "processingVideo": "Processing video..."
+  "processingVideo": "Processing video...",
+  "enterIntersectionName": "Enter intersection name",
+  "confirm": "Confirm",
+  "vehicleCountsByDirection": "Vehicle Counts by Direction",
+  "summary": "Summary",
+  "intersection": "Intersection",
+  "video": "Video",
+  "model": "Model",
+  "processingTime": "Processing Time",
+  "totalFrames": "Total Frames",
+  "directionsCount": "Directions Count",
+  "videoDimensions": "Video Dimensions",
+  "direction": "Direction",
+  "cars": "Cars",
+  "bikes": "Bikes",
+  "buses": "Buses",
+  "trucks": "Trucks",
+  "total": "Total",
+  "noResultsAvailable": "No results available",
+  "errorProcessingResults": "Error Processing Results",
+  "failedToDownloadJSON": "Failed to download JSON",
+  "failedToDownloadCSV": "Failed to download CSV"
 }

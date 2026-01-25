@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import '../view_models/directions_view_model.dart';
@@ -19,12 +20,39 @@ class _DirectionCardState extends State<DirectionCard> {
   late TextEditingController _fromController;
   late TextEditingController _toController;
   final Map<String, TextEditingController> _coordinateControllers = {};
+  final Map<String, FocusNode> _coordinateFocusNodes = {};
 
   @override
   void initState() {
     super.initState();
     _fromController = TextEditingController(text: widget.direction.labelFrom);
     _toController = TextEditingController(text: widget.direction.labelTo);
+    _initializeCoordinateControllers();
+  }
+
+  void _initializeCoordinateControllers() {
+    for (int lineIndex = 0; lineIndex < widget.direction.lines.length; lineIndex++) {
+      final line = widget.direction.lines[lineIndex];
+      _coordinateControllers['$lineIndex-x1'] = TextEditingController(text: line.x1.toStringAsFixed(3));
+      _coordinateControllers['$lineIndex-y1'] = TextEditingController(text: line.y1.toStringAsFixed(3));
+      _coordinateControllers['$lineIndex-x2'] = TextEditingController(text: line.x2.toStringAsFixed(3));
+      _coordinateControllers['$lineIndex-y2'] = TextEditingController(text: line.y2.toStringAsFixed(3));
+    }
+  }
+
+  @override
+  void didUpdateWidget(DirectionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.direction != widget.direction) {
+      _fromController.text = widget.direction.labelFrom;
+      _toController.text = widget.direction.labelTo;
+      _updateCoordinateControllers();
+    }
+  }
+
+  void _updateCoordinateControllers() {
+    _coordinateControllers.clear();
+    _initializeCoordinateControllers();
   }
 
   @override
@@ -33,6 +61,9 @@ class _DirectionCardState extends State<DirectionCard> {
     _toController.dispose();
     for (final controller in _coordinateControllers.values) {
       controller.dispose();
+    for (final focusNode in _coordinateFocusNodes.values) {
+      focusNode.dispose();
+    }
     }
     super.dispose();
   }
@@ -129,12 +160,18 @@ class _DirectionCardState extends State<DirectionCard> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<int>(
+                        dropdownColor: Theme.of(context).colorScheme.secondaryContainer,
+                        iconEnabledColor: Theme.of(context).colorScheme.primary,
+                        iconDisabledColor: Theme.of(context).colorScheme.onSecondaryFixed,
                         value: direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1),
                         items: List.generate(
                           direction.lines.length,
                           (i) => DropdownMenuItem(
                             value: i,
-                            child: Text(localizations.lineWithNumber(i + 1)),
+                            child: Text(
+                              localizations.lineWithNumber(i + 1),
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                            ),
                           ),
                         ),
                         decoration: InputDecoration(
@@ -177,6 +214,24 @@ class _DirectionCardState extends State<DirectionCard> {
                   TextButton(
                     onPressed: isSelected
                         ? () {
+                            if (direction.lines.length != 2) {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: Text(localizations.directionError),
+                                  content: Text(
+                                    localizations.twoLinesRequired,
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(),
+                                      child: Text(localizations.close),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              return;
+                            }
                             if (!direction.canLock) {
                               showDialog(
                                 context: context,
@@ -222,15 +277,27 @@ class _DirectionCardState extends State<DirectionCard> {
     AppLocalizations localizations
   ) {
     final line = direction.lines[lineIndex];
+    final isLineSelected = provider.selectedLineId == line.id;
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
+    return InkWell(
+      onTap: isSelected ? () => provider.selectLine(isLineSelected ? null : line.id) : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isLineSelected 
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(8),
+          border: isLineSelected
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                )
+              : null,
+        ),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -330,6 +397,7 @@ class _DirectionCardState extends State<DirectionCard> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -346,25 +414,80 @@ class _DirectionCardState extends State<DirectionCard> {
     
     if (!_coordinateControllers.containsKey(key)) {
       _coordinateControllers[key] = TextEditingController(text: value.toStringAsFixed(3));
-    } else {
-      final controller = _coordinateControllers[key]!;
-      if (controller.text != value.toStringAsFixed(3)) {
-        controller.text = value.toStringAsFixed(3);
-      }
     }
 
-    return TextField(
-      controller: _coordinateControllers[key],
-      decoration: InputDecoration(
-        labelText: label,
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        border: const OutlineInputBorder(),
+    if (!_coordinateFocusNodes.containsKey(key)) {
+      _coordinateFocusNodes[key] = FocusNode();
+    }
+
+    final focusNode = _coordinateFocusNodes[key]!;
+
+    return Focus(
+      focusNode: focusNode,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        if (!enabled) return KeyEventResult.ignored;
+
+        const step = 0.005;
+
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.keyA:
+            if (coord.startsWith('x')) {
+              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
+              final newValue = (currentValue - step).clamp(0.0, 1.0);
+              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
+              onChanged(newValue.toStringAsFixed(3));
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+
+          case LogicalKeyboardKey.keyD:
+            if (coord.startsWith('x')) {
+              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
+              final newValue = (currentValue + step).clamp(0.0, 1.0);
+              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
+              onChanged(newValue.toStringAsFixed(3));
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+
+          case LogicalKeyboardKey.keyW:
+            if (coord.startsWith('y')) {
+              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
+              final newValue = (currentValue - step).clamp(0.0, 1.0);
+              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
+              onChanged(newValue.toStringAsFixed(3));
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+
+          case LogicalKeyboardKey.keyS:
+            if (coord.startsWith('y')) {
+              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
+              final newValue = (currentValue + step).clamp(0.0, 1.0);
+              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
+              onChanged(newValue.toStringAsFixed(3));
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+
+          default:
+            return KeyEventResult.ignored;
+        }
+      },
+      child: TextField(
+        controller: _coordinateControllers[key],
+        decoration: InputDecoration(
+          labelText: label,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          border: const OutlineInputBorder(),
+        ),
+        style: Theme.of(context).textTheme.bodySmall,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        enabled: enabled,
+        onChanged: onChanged,
       ),
-      style: Theme.of(context).textTheme.bodySmall,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      enabled: enabled,
-      onChanged: onChanged,
     );
   }
 

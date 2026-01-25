@@ -14,12 +14,14 @@ class DirectionsViewModel extends ChangeNotifier {
     Color _currentColor = Colors.red;
     String _selectedModel = 'yolo11n';
     bool _isDrawingLine = false;
+    String? _selectedLineId;
 
     List<DirectionModel> get directions => _directions;
     DirectionModel? get activeDirection => _active;
     DirectionModel? get selectedDirection => _selected;
     Color get currentColor => _currentColor;
     String get selectedModel => _selectedModel;
+    String? get selectedLineId => _selectedLineId;
 
     bool get canSend => _directions.any((d) => d.isLocked);
     bool get canDraw => _selected != null && !_selected!.isLocked;
@@ -32,6 +34,7 @@ class DirectionsViewModel extends ChangeNotifier {
       _selected = null;
       _currentColor = Colors.red;
       _isDrawingLine = false;
+      _selectedLineId = null;
       notifyListeners();
   }
 
@@ -58,6 +61,18 @@ class DirectionsViewModel extends ChangeNotifier {
       final normalizedY = point.dy / canvasSize.height;
 
       if (!_isDrawingLine) {
+        if (target.lines.length >= 2) {
+          final newDirection = DirectionModel(
+            labelFrom: '',
+            labelTo: '',
+            color: _currentColor,
+          );
+          _directions.add(newDirection);
+          _selected = newDirection;
+          _active = newDirection;
+          target = newDirection;
+        }
+
         final newLine = LineModel(
           x1: normalizedX,
           y1: normalizedY,
@@ -81,6 +96,7 @@ class DirectionsViewModel extends ChangeNotifier {
   void selectDirection(DirectionModel direction) {
     _selected = direction;
     _isDrawingLine = false;
+    _selectedLineId = null;
     if (!direction.isLocked) {
       _active = direction;
     }
@@ -189,7 +205,7 @@ class DirectionsViewModel extends ChangeNotifier {
   }
 
   void updateLineCoordinates(DirectionModel direction, int lineIndex, double x1, double y1, double x2, double y2) {
-    if (!_directions.contains(direction) || direction.isLocked) return;
+    if (!_directions.contains(direction)) return;
     if (lineIndex < 0 || lineIndex >= direction.lines.length) return;
     
     direction.lines[lineIndex] = direction.lines[lineIndex].copyWith(
@@ -257,5 +273,32 @@ class DirectionsViewModel extends ChangeNotifier {
     notifyListeners();
     return pickedFile;
   }
+  void selectLine(String? lineId) {
+    _selectedLineId = lineId;
+    notifyListeners();
+  }
+
+  void adjustSelectedLineCoordinate({
+    double? dx1,
+    double? dy1,
+    double? dx2,
+    double? dy2,
+  }) {
+    if (_selectedLineId == null || _selected == null) return;
+    
+    final lineIndex = _selected!.lines.indexWhere((line) => line.id == _selectedLineId);
+    if (lineIndex == -1) return;
+    
+    final line = _selected!.lines[lineIndex];
+    
+    _selected!.lines[lineIndex] = line.copyWith(
+      x1: dx1 != null ? (line.x1 + dx1).clamp(0.0, 1.0) : line.x1,
+      y1: dy1 != null ? (line.y1 + dy1).clamp(0.0, 1.0) : line.y1,
+      x2: dx2 != null ? (line.x2 + dx2).clamp(0.0, 1.0) : line.x2,
+      y2: dy2 != null ? (line.y2 + dy2).clamp(0.0, 1.0) : line.y2,
+    );
+    notifyListeners();
+  }
+
 
 }
