@@ -131,10 +131,12 @@ Future<void> showLoadIntersectionDialog(
                   onPressed: () async {
                     await provider.deleteIntersection(file.path);
                     files.removeAt(index);
-                    setState(() {});
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(localizations.intersectionDeleted(name))),
-                    );
+                    if (context.mounted) {
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(localizations.intersectionDeleted(name))),
+                      );
+                    }
                   },
                 ),
                 onTap: () async {
@@ -143,10 +145,18 @@ Future<void> showLoadIntersectionDialog(
                   provider.file = IntersectionModel.fromJson(data);
                   provider.loadIntersectionFromData(data);
 
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(localizations.intersectionLoaded(name))),
-                  );
+                  // Show SnackBar before popping to avoid using deactivated context
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(localizations.intersectionLoaded(name))),
+                    );
+                  }
+                  
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  });
                 },
               );
             },

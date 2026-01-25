@@ -68,7 +68,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         onPressed: () {
           final navigator = Navigator.of(context);
           if (navigator.canPop()) {
-            navigator.pop();
+            navigator.maybePop();
           } else {
             navigator.pushReplacementNamed('/start');
           }

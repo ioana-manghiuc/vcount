@@ -121,5 +121,10 @@
   "failedToDownloadJSON": "Failed to download JSON",
   "failedToDownloadCSV": "Failed to download CSV",
   "noVideoAvailable": "No annotated video available",
-  "loadingVideo": "Loading video..."
+  "loadingVideo": "Loading video...",
+  "confirmCancel": "Cancel Processing?",
+  "cancelProcessingMessage": "Video processing is in progress. Are you sure you want to cancel it and go back?",
+  "processingCancelled": "Processing cancelled by user",
+  "yes": "Yes",
+  "no": "No"
 }

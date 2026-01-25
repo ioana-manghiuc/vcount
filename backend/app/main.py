@@ -11,6 +11,8 @@ import logging.config
 from pathlib import Path
 from uuid import uuid4
 from datetime import datetime
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from app.logging.logging_config import LOGGING_CONFIG
 from app.services.vehicle_counter import VehicleCounter
 from app.services.yolo_tracker import YOLOVehicleTracker
@@ -18,6 +20,8 @@ from app.services.yolo_tracker import YOLOVehicleTracker
 logging.config.dictConfig(LOGGING_CONFIG)
 
 logger = logging.getLogger("app")
+
+executor = ThreadPoolExecutor(max_workers=2)
 
 def resource_path(relative):
     """
@@ -54,6 +58,8 @@ RESULTS_FOLDER = "results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
+processing_tasks = {}
 
 @app.post("/upload_frame")
 async def upload_frame(video: UploadFile = File(...)):
@@ -147,15 +153,108 @@ def validate_directions(directions):
             raise ValueError(f"Direction {d.get('id')} missing exit line (isEntry=false)")
 
 
+def process_video_frames(tracker, counter, directions_data, writer, video_path, processing_id, w, h):
+    """Process video frames with cancellation support. Runs in thread pool."""
+    
+    def is_cancelled():
+        return processing_tasks.get(processing_id, {}).get("cancelled", False)
+    
+    frame_count = 0
+    check_frequency = 0
+    
+    for frame_idx, detections, frame in tracker.track_video(video_path):
+        if frame_idx % 5 == 0: 
+            cancelled = is_cancelled()
+            check_frequency += 1
+            if cancelled:
+                logger.warning("CANCELLATION DETECTED at frame %d (check #%d)", frame_idx, check_frequency)
+                break
+        elif is_cancelled():
+            logger.warning("CANCELLATION DETECTED at frame %d (unlogged check)", frame_idx)
+            break
+            
+        if frame_idx % 10 == 0:
+            logger.info(f"Processing frame {frame_idx}, detections: {len(detections)}")
+        
+        counter.update(detections)
+        frame_count = frame_idx
+
+        overlay = frame.copy()
+        for d in counter.directions:
+            dir_data = next((dd for dd in directions_data if dd['id'] == d['id']), None)
+            if dir_data and 'color' in dir_data:
+                argb = dir_data['color']
+                b = (argb >> 0) & 0xFF
+                g = (argb >> 8) & 0xFF
+                r = (argb >> 16) & 0xFF
+                color_bgr = (b, g, r)
+            else:
+                color_bgr = (255, 255, 255) 
+            
+            ex1, ey1, ex2, ey2 = int(d['entry_line']['x1']), int(d['entry_line']['y1']), int(d['entry_line']['x2']), int(d['entry_line']['y2'])
+            cv2.line(overlay, (ex1, ey1), (ex2, ey2), color_bgr, 3)
+
+            mid_x, mid_y = (ex1 + ex2) // 2, (ey1 + ey2) // 2
+            cv2.putText(overlay, "ENTRY", (mid_x - 30, mid_y - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2, cv2.LINE_AA)
+            
+            x1, y1, x2, y2 = int(d['exit_line']['x1']), int(d['exit_line']['y1']), int(d['exit_line']['x2']), int(d['exit_line']['y2'])
+            cv2.line(overlay, (x1, y1), (x2, y2), color_bgr, 2, cv2.LINE_4)
+            
+            mid_x, mid_y = (x1 + x2) // 2, (y1 + y2) // 2
+            cv2.putText(overlay, "EXIT", (mid_x - 25, mid_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2, cv2.LINE_AA)
+
+        for det in detections:
+            x1, y1, x2, y2 = det['bbox']
+            cx, cy = int(det['cx']), int(det['cy'])
+            cv2.rectangle(overlay, (x1, y1), (x2, y2), (255, 255, 0), 2)
+            cv2.circle(overlay, (cx, cy), 3, (0, 0, 255), -1)
+            cv2.putText(overlay, f"ID {det['track_id']} cls {det['class_id']}", (x1, y1-8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+        y_offset = 25
+        for d in counter.directions:
+            dir_id = d['id']
+            
+            dir_data = next((dd for dd in directions_data if dd['id'] == d['id']), None)
+            if dir_data and 'color' in dir_data:
+                argb = dir_data['color']
+                b = (argb >> 0) & 0xFF
+                g = (argb >> 8) & 0xFF
+                r = (argb >> 16) & 0xFF
+                text_color = (b, g, r)
+            else:
+                text_color = (50, 255, 50)
+            
+            label = f"{d['from']} -> {d['to']}: B:{counter.counts[dir_id]['bikes']} C:{counter.counts[dir_id]['cars']} Bu:{counter.counts[dir_id]['buses']} T:{counter.counts[dir_id]['trucks']}"
+            
+            (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+            cv2.rectangle(overlay, (15, y_offset - text_h - 5), (25 + text_w, y_offset + 5), (0, 0, 0), -1)
+            cv2.rectangle(overlay, (15, y_offset - text_h - 5), (25 + text_w, y_offset + 5), text_color, 2)
+            
+            cv2.putText(overlay, label, (20, y_offset), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2, cv2.LINE_AA)
+            y_offset += 35
+
+        writer.write(overlay)
+    
+    return frame_count
+
+
 @app.post("/count_vehicles")
 async def count_vehicles(
     video: UploadFile = File(...),
     directions: str = Form(...),
     model_name: str = Form("yolo11n-best.pt"),
     intersection_name: str = Form(""),
+    processing_id: str = Form(""),
 ):
     try:
-        logger.info("count_vehicles called")
+        logger.warning("count_vehicles called")
+        logger.warning("   processing_id: %s", processing_id)
+        logger.warning("   video.filename: %s", video.filename)
+        logger.warning("   model_name: %s", model_name)
+        logger.warning("   intersection_name: %s", intersection_name)
+        
+        processing_tasks[processing_id] = {"cancelled": False}
+        logger.warning("Registered task for processing_id: %s", processing_id)
 
         directions_data = json.loads(directions)
         validate_directions(directions_data)
@@ -211,77 +310,42 @@ async def count_vehicles(
         annotated_filename = f"annotated_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}.mp4"
         annotated_path = os.path.join(RESULTS_FOLDER, annotated_filename)
         writer = cv2.VideoWriter(annotated_path, fourcc, processed_fps, (w, h))
+        
+        def is_cancelled():
+            return processing_tasks.get(processing_id, {}).get("cancelled", False)
 
         logger.info("Starting vehicle counting...")
         start_time = datetime.now()
-        frame_count = 0
-        for frame_idx, detections, frame in tracker.track_video(video_path):
-            if frame_idx % 10 == 0:
-                logger.info(f"Processing frame {frame_idx}, detections: {len(detections)}")
-            
-            counter.update(detections)
-            frame_count = frame_idx
 
-            overlay = frame.copy()
-            for d in counter.directions:
-                dir_data = next((dd for dd in directions_data if dd['id'] == d['id']), None)
-                if dir_data and 'color' in dir_data:
-                    argb = dir_data['color']
-                    b = (argb >> 0) & 0xFF
-                    g = (argb >> 8) & 0xFF
-                    r = (argb >> 16) & 0xFF
-                    color_bgr = (b, g, r)
-                else:
-                    color_bgr = (255, 255, 255) 
-                
-                ex1, ey1, ex2, ey2 = int(d['entry_line']['x1']), int(d['entry_line']['y1']), int(d['entry_line']['x2']), int(d['entry_line']['y2'])
-                cv2.line(overlay, (ex1, ey1), (ex2, ey2), color_bgr, 3)
-
-                mid_x, mid_y = (ex1 + ex2) // 2, (ey1 + ey2) // 2
-                cv2.putText(overlay, "ENTRY", (mid_x - 30, mid_y - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2, cv2.LINE_AA)
-                
-                x1, y1, x2, y2 = int(d['exit_line']['x1']), int(d['exit_line']['y1']), int(d['exit_line']['x2']), int(d['exit_line']['y2'])
-                cv2.line(overlay, (x1, y1), (x2, y2), color_bgr, 2, cv2.LINE_4)
-                
-                mid_x, mid_y = (x1 + x2) // 2, (y1 + y2) // 2
-                cv2.putText(overlay, "EXIT", (mid_x - 25, mid_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2, cv2.LINE_AA)
-
-            for det in detections:
-                x1, y1, x2, y2 = det['bbox']
-                cx, cy = int(det['cx']), int(det['cy'])
-                cv2.rectangle(overlay, (x1, y1), (x2, y2), (255, 255, 0), 2)
-                cv2.circle(overlay, (cx, cy), 3, (0, 0, 255), -1)
-                cv2.putText(overlay, f"ID {det['track_id']} cls {det['class_id']}", (x1, y1-8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1, cv2.LINE_AA)
-
-            y_offset = 25
-            for d in counter.directions:
-                dir_id = d['id']
-                
-                dir_data = next((dd for dd in directions_data if dd['id'] == d['id']), None)
-                if dir_data and 'color' in dir_data:
-                    argb = dir_data['color']
-                    b = (argb >> 0) & 0xFF
-                    g = (argb >> 8) & 0xFF
-                    r = (argb >> 16) & 0xFF
-                    text_color = (b, g, r)
-                else:
-                    text_color = (50, 255, 50)
-                
-                label = f"{d['from']} -> {d['to']}: B:{counter.counts[dir_id]['bikes']} C:{counter.counts[dir_id]['cars']} Bu:{counter.counts[dir_id]['buses']} T:{counter.counts[dir_id]['trucks']}"
-                
-                (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-                cv2.rectangle(overlay, (15, y_offset - text_h - 5), (25 + text_w, y_offset + 5), (0, 0, 0), -1)
-                cv2.rectangle(overlay, (15, y_offset - text_h - 5), (25 + text_w, y_offset + 5), text_color, 2)
-                
-                cv2.putText(overlay, label, (20, y_offset), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2, cv2.LINE_AA)
-                y_offset += 35
-
-            writer.write(overlay)
+        loop = asyncio.get_event_loop()
+        frame_count = await loop.run_in_executor(
+            executor,
+            process_video_frames,
+            tracker,
+            counter,
+            directions_data,
+            writer,
+            video_path,
+            processing_id,
+            w,
+            h
+        )
 
         end_time = datetime.now()
         processing_time = (end_time - start_time).total_seconds()
         logger.info(f"Video processing complete: {frame_count} frames processed in {processing_time:.2f}s")
         writer.release()
+        
+        if is_cancelled():
+            logger.warning("Task was cancelled - skipping results save and deleting annotated video")
+            if os.path.exists(annotated_path):
+                os.remove(annotated_path)
+                logger.info(f"Deleted annotated video: {annotated_path}")
+            if processing_id in processing_tasks:
+                processing_tasks[processing_id]["completed"] = True
+                processing_tasks[processing_id]["completed_time"] = datetime.now()
+                processing_tasks[processing_id]["cancelled"] = True
+            return {"status": "cancelled", "processing_id": processing_id}
     
         results = counter.get_results()
         
@@ -310,9 +374,36 @@ async def count_vehicles(
         
         logger.info("Final results: %s", results)
         logger.info(f"Results saved to: {result_path}")
+        
+        if processing_id in processing_tasks:
+            processing_tasks[processing_id]["completed"] = True
+            processing_tasks[processing_id]["completed_time"] = datetime.now()
 
         return results_with_metadata
 
     except Exception as e:
         logger.exception("Vehicle counting failed")
+        if processing_id in processing_tasks:
+            processing_tasks[processing_id]["completed"] = True
+            processing_tasks[processing_id]["completed_time"] = datetime.now()
+            processing_tasks[processing_id]["error"] = str(e)
         raise HTTPException(500, f"Vehicle counting failed: {str(e)}")
+
+@app.post("/cancel_processing/{processing_id}")
+def cancel_processing(processing_id: str):
+    """Cancel a running vehicle counting process"""
+    logger.warning("Received cancellation request for processing_id: %s", processing_id)
+    logger.debug("Current processing_tasks keys: %s", list(processing_tasks.keys()))
+    
+    if processing_id in processing_tasks:
+        task = processing_tasks[processing_id]
+        if task.get("completed"):
+            logger.info("Processing_id %s already completed", processing_id)
+            return {"status": "already_completed", "processing_id": processing_id}
+        else:
+            task["cancelled"] = True
+            logger.warning("Marked processing_id %s as cancelled. Current state: %s", processing_id, task)
+            return {"status": "cancelled", "processing_id": processing_id}
+    else:
+        logger.error("Processing ID %s not found in tasks. Available IDs: %s", processing_id, list(processing_tasks.keys()))
+        return {"status": "not_found", "processing_id": processing_id}

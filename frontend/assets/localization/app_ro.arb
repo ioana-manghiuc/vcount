@@ -120,5 +120,10 @@
   "failedToDownloadJSON": "Eșec la descărcarea JSON",
   "failedToDownloadCSV": "Eșec la descărcarea CSV",
   "noVideoAvailable": "Video anotat indisponibil",
-  "loadingVideo": "Se încarcă videoclipul..."
+  "loadingVideo": "Se încarcă videoclipul...",
+  "confirmCancel": "Anulezi procesarea?",
+  "cancelProcessingMessage": "Procesarea videoclipului este în curs. Ești sigur că vrei să o anulezi și să te întorci?",
+  "processingCancelled": "Procesarea anulată de utilizator",
+  "yes": "Da",
+  "no": "Nu"
 }
