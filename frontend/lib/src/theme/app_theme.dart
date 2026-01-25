@@ -14,8 +14,8 @@ ThemeData lightMode = ThemeData(
     secondaryContainer: const Color.fromARGB(255, 185, 152, 141), // direction card
     onSecondaryFixed: const Color.fromARGB(255, 185, 134, 118), // selected direction card
     tertiary:const Color.fromARGB(255, 22, 114, 0), // editable text
-    onTertiary: const Color.fromARGB(255, 36, 17, 9) // APP BAR TEXT
-    
+    onTertiary: const Color.fromARGB(255, 36, 17, 9), // APP BAR TEXT
+    onError: const Color.fromARGB(255, 188, 8, 8)
   ),
   fontFamily: GoogleFonts.quantico().fontFamily,
 );

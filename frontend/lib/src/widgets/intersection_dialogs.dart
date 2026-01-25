@@ -85,7 +85,7 @@ Future<void> showLoadIntersectionDialog(
   AppLocalizations localizations,
 ) async {
 
-  Future<void> _handlePickFile() async {
+  Future<void> _handlePickFile({bool shouldPopDialog = true}) async {
     final result = await provider.pickIntersectionFile();
     if (result == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -94,7 +94,9 @@ Future<void> showLoadIntersectionDialog(
       return;
     }
 
-    Navigator.pop(context);
+    if (shouldPopDialog && Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(localizations.intersectionLoaded(result.name))),
     );
@@ -104,7 +106,8 @@ Future<void> showLoadIntersectionDialog(
   final intersectionsDir = Directory(p.join(dir.path, 'intersections'));
 
   if (!intersectionsDir.existsSync()) {
-    intersectionsDir.createSync(recursive: true);
+    await _handlePickFile(shouldPopDialog: false);
+    return;
   }
 
   final files = intersectionsDir
@@ -136,9 +139,9 @@ Future<void> showLoadIntersectionDialog(
               return ListTile(
                 title: Text(name),
                 subtitle: Text(file.path),
-                leading: const Icon(Icons.alt_route),
+                leading: Icon(Icons.alt_route, color: Theme.of(context).colorScheme.onSurface),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.onError),
                   tooltip: localizations.delete,
                   onPressed: () async {
                     await provider.deleteIntersection(file.path);
@@ -165,7 +168,7 @@ Future<void> showLoadIntersectionDialog(
         ),
         actions: [
           TextButton(
-            onPressed: _handlePickFile,
+            onPressed: () => _handlePickFile(),
             child: Text(localizations.loadFromDisk),
           ),
           TextButton(
