@@ -38,6 +38,7 @@
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
   "multipleLinesDirection" : "Linii multiple pentru direcție",
   "yolo11VersionLabel": "Versiune YOLO 11",
+  "modelYolo11Official": "YOLO11 (oficial, preantrenat)",
   "start": "Start",
   "startScreenWelcome": "Bine ai venit la VCount!",
   "resultsTitle": "Rezultate",

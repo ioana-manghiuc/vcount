@@ -14,6 +14,37 @@ class DirectionsPanel extends StatelessWidget {
     final provider = context.watch<DirectionsViewModel>();
     final localizations = AppLocalizations.of(context)!;
 
+    const officialModelLabels = {
+      'yolo11s-official': 'YOLO11S (official)',
+      'yolo11m-official': 'YOLO11M (official)',
+      'yolo11l-official': 'YOLO11L (official)',
+      'yolo26n-official': 'YOLO26N (official)',
+      'yolo26s-official': 'YOLO26S (official)',
+      'yolo26m-official': 'YOLO26M (official)',
+      'yolo26l-official': 'YOLO26L (official)',
+    };
+
+    final modelItems = [
+      DropdownMenuItem(
+        value: 'yolo11',
+        child: Text(localizations.modelYolo11Official),
+      ),
+      ...officialModelLabels.entries.map(
+        (entry) => DropdownMenuItem(
+          value: entry.key,
+          child: Text(entry.value),
+        ),
+      ),
+      ...['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l', 'yolo26s', 'yolo26n', 'yolo26m', 'yolo26l',
+          'yolo11n-cpu','yolo11s-cpu16','yolo11s-cpu32']
+          .map(
+            (m) => DropdownMenuItem(
+              value: m,
+              child: Text(m.toUpperCase()),
+            ),
+          ),
+    ];
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -33,14 +64,7 @@ class DirectionsPanel extends StatelessWidget {
               isDense: true,
               border: const OutlineInputBorder(),
             ),
-            items: const ['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l']
-                .map(
-                  (m) => DropdownMenuItem(
-                    value: m,
-                    child: Text(m.toUpperCase()),
-                  ),
-                )
-                .toList(),
+            items: modelItems,
             onChanged: (model) =>
                 model != null ? provider.setSelectedModel(model) : null,
           ),

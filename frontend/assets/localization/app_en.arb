@@ -38,6 +38,7 @@
   "howToChooseModel": "How to choose the right YOLO11 version?",
   "multipleLinesDirection" : "Multiple lines for direction",
   "yolo11VersionLabel": "YOLO 11 version",
+  "modelYolo11Official": "YOLO11 (official pretrained)",
   "start": "Start",
   "startScreenWelcome": "Welcome to VCount!",
   "resultsTitle": "Results",

@@ -51,6 +51,7 @@ Future<void> showSaveIntersectionDialog(
               final file = File(filePath);
               await file.writeAsString(jsonEncode(data));
 
+              if (!context.mounted) return;
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(localizations.intersectionSaved(name))),
@@ -73,12 +74,14 @@ Future<void> showLoadIntersectionDialog(
   Future<void> _handlePickFile({bool shouldPopDialog = true}) async {
     final result = await provider.pickIntersectionFile();
     if (result == null) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.invalidFileContent)),
       );
       return;
     }
 
+    if (!context.mounted) return;
     if (shouldPopDialog && Navigator.of(context).canPop()) {
       Navigator.pop(context);
     }
@@ -102,6 +105,7 @@ Future<void> showLoadIntersectionDialog(
       .toList();
 
   if (files.isEmpty) {
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(localizations.noSavedIntersectionsFound)),
     );
@@ -145,7 +149,6 @@ Future<void> showLoadIntersectionDialog(
                   provider.file = IntersectionModel.fromJson(data);
                   provider.loadIntersectionFromData(data);
 
-                  // Show SnackBar before popping to avoid using deactivated context
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(localizations.intersectionLoaded(name))),

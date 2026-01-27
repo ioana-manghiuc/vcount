@@ -117,12 +117,10 @@ class BackendService {
       }
       debugPrint('========================\n');
 
-      // Reset cancel token for new request and generate processing ID
       resetCancelToken();
       _currentProcessingId = const Uuid().v4();
       debugPrint('📝 Processing ID: $_currentProcessingId');
       
-      // Create a new HTTP client for this request
       _httpClient = http.Client();
       
       final request = http.MultipartRequest(
@@ -139,7 +137,6 @@ class BackendService {
       request.fields['intersection_name'] = intersectionName;
       request.fields['processing_id'] = _currentProcessingId!;
 
-      // Create a future that races between the request and cancellation
       final requestFuture = _httpClient!.send(request).timeout(
         const Duration(seconds: 3600),
         onTimeout: () {
@@ -152,7 +149,6 @@ class BackendService {
         _cancelToken.cancellationFuture.then((_) => throw _RequestCancelledException()),
       ]);
 
-      // Check if cancelled before processing response
       if (_cancelToken.isCancelled) {
         debugPrint('⚠️ Video processing was cancelled by user');
         _httpClient?.close();

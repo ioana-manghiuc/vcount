@@ -17,6 +17,5 @@ class CancelToken {
 
   void reset() {
     _cancelled = false;
-    // Don't reset the completer, create a new one
   }
 }

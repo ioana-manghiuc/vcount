@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import '../view_models/directions_view_model.dart';
 import '../localization/app_localizations.dart';
 import '../models/direction_model.dart';
+import 'direction_card_widgets/color_picker_dialog.dart';
+import 'direction_card_widgets/direction_card_header.dart';
+import 'direction_card_widgets/direction_label_fields.dart';
+import 'direction_card_widgets/entry_line_selector.dart';
+import 'direction_card_widgets/line_coordinate_editor.dart';
+import 'direction_card_widgets/direction_card_actions.dart';
 
 class DirectionCard extends StatefulWidget {
   final DirectionModel direction;
@@ -61,9 +65,9 @@ class _DirectionCardState extends State<DirectionCard> {
     _toController.dispose();
     for (final controller in _coordinateControllers.values) {
       controller.dispose();
+    }
     for (final focusNode in _coordinateFocusNodes.values) {
       focusNode.dispose();
-    }
     }
     super.dispose();
   }
@@ -80,7 +84,8 @@ class _DirectionCardState extends State<DirectionCard> {
         provider.selectDirection(direction);
         if (direction.isLocked) {
           provider.unlockForEditing(direction);
-      }},
+        }
+      },
       borderRadius: BorderRadius.circular(12),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -102,95 +107,30 @@ class _DirectionCardState extends State<DirectionCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: !isSelected ? null : () => _pickColor(context),
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: direction.color,
-                        border: Border.all(color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isSelected
-                        ? localizations!.editable
-                        : direction.isLocked
-                            ? localizations!.locked
-                            : localizations!.editable,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.tertiary
-                          : direction.isLocked
-                              ? Theme.of(context).colorScheme.onTertiary
-                              : Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ],
+              DirectionCardHeader(
+                direction: direction,
+                isSelected: isSelected,
+                onColorTap: () => showDirectionColorPicker(context, direction),
               ),
 
-              TextField(
-                decoration: InputDecoration(labelText: localizations.from),
-                controller: _fromController,
-                onChanged: (v) => provider.updateLabels(v, _toController.text),
-                enabled: isSelected,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: localizations.to),
-                controller: _toController,
-                onChanged: (v) => provider.updateLabels(_fromController.text, v),
+              DirectionLabelFields(
+                fromController: _fromController,
+                toController: _toController,
                 enabled: isSelected,
               ),
 
               if (direction.lines.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  localizations.linesCount(direction.lines.length),
+                  localizations!.linesCount(direction.lines.length),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        dropdownColor: Theme.of(context).colorScheme.secondaryContainer,
-                        iconEnabledColor: Theme.of(context).colorScheme.primary,
-                        iconDisabledColor: Theme.of(context).colorScheme.onSecondaryFixed,
-                        value: direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1),
-                        items: List.generate(
-                          direction.lines.length,
-                          (i) => DropdownMenuItem(
-                            value: i,
-                            child: Text(
-                              localizations.lineWithNumber(i + 1),
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                            ),
-                          ),
-                        ),
-                        decoration: InputDecoration(
-                          labelText: localizations.entryLineLabel(
-                            direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1) + 1,
-                          ),
-                          isDense: true,
-                          border: const OutlineInputBorder(),
-                        ),
-                        onChanged: !isSelected
-                            ? null
-                            : (v) {
-                                if (v != null) {
-                                  provider.setLineAsEntry(direction, v);
-                                }
-                              },
-                      ),
-                    ),
-                  ],
+                EntryLineSelector(
+                  direction: direction,
+                  enabled: isSelected,
                 ),
                 const SizedBox(height: 8),
               ],
@@ -198,326 +138,23 @@ class _DirectionCardState extends State<DirectionCard> {
               if (direction.lines.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 ...List.generate(direction.lines.length, (lineIndex) {
-                  return _buildLineCoordinates(
-                    context,
-                    provider,
-                    direction,
-                    lineIndex,
-                    isSelected,
-                    localizations,
+                  return LineCoordinateEditor(
+                    direction: direction,
+                    lineIndex: lineIndex,
+                    isSelected: isSelected,
+                    coordinateControllers: _coordinateControllers,
+                    coordinateFocusNodes: _coordinateFocusNodes,
                   );
                 }),
               ],
               
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: isSelected
-                        ? () {
-                            if (direction.lines.length != 2) {
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  title: Text(localizations.directionError),
-                                  content: Text(
-                                    localizations.twoLinesRequired,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: Text(localizations.close),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              return;
-                            }
-                            if (!direction.canLock) {
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  title: Text(localizations.directionError),
-                                  content: Text(
-                                    localizations.labelsAndLineRequired,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: Text(localizations.translate('ok') == '**ok**' ? 'OK' : localizations.translate('ok')),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              return;
-                            }
-                            provider.lockSelectedDirection();
-                          }
-                        : null,
-                    child: Text(localizations.save),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => provider.deleteDirection(direction),
-                  ),
-                ],
+              DirectionCardActions(
+                direction: direction,
+                enabled: isSelected,
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLineCoordinates(
-    BuildContext context,
-    DirectionsViewModel provider,
-    DirectionModel direction,
-    int lineIndex,
-    bool isSelected,
-    AppLocalizations localizations
-  ) {
-    final line = direction.lines[lineIndex];
-    final isLineSelected = provider.selectedLineId == line.id;
-    
-    return InkWell(
-      onTap: isSelected ? () => provider.selectLine(isLineSelected ? null : line.id) : null,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isLineSelected 
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(8),
-          border: isLineSelected
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 2,
-                )
-              : null,
-        ),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  localizations.lineNumber(lineIndex + 1),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (isSelected)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => provider.deleteLineAtIndex(direction, lineIndex),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: _buildCoordinateField(
-                  context,
-                  'X1',
-                  line.x1,
-                  (value) {
-                    final x = double.tryParse(value);
-                    if (x != null) {
-                      provider.updateLineCoordinates(direction, lineIndex, x, line.y1, line.x2, line.y2);
-                    }
-                  },
-                  isSelected,
-                  lineIndex,
-                  'x1',
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: _buildCoordinateField(
-                  context,
-                  'Y1',
-                  line.y1,
-                  (value) {
-                    final y = double.tryParse(value);
-                    if (y != null) {
-                      provider.updateLineCoordinates(direction, lineIndex, line.x1, y, line.x2, line.y2);
-                    }
-                  },
-                  isSelected,
-                  lineIndex,
-                  'y1',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: _buildCoordinateField(
-                  context,
-                  'X2',
-                  line.x2,
-                  (value) {
-                    final x = double.tryParse(value);
-                    if (x != null) {
-                      provider.updateLineCoordinates(direction, lineIndex, line.x1, line.y1, x, line.y2);
-                    }
-                  },
-                  isSelected,
-                  lineIndex,
-                  'x2',
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: _buildCoordinateField(
-                  context,
-                  'Y2',
-                  line.y2,
-                  (value) {
-                    final y = double.tryParse(value);
-                    if (y != null) {
-                      provider.updateLineCoordinates(direction, lineIndex, line.x1, line.y1, line.x2, y);
-                    }
-                  },
-                  isSelected,
-                  lineIndex,
-                  'y2',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-    );
-  }
-
-  Widget _buildCoordinateField(
-    BuildContext context,
-    String label,
-    double value,
-    Function(String) onChanged,
-    bool enabled,
-    int lineIndex,
-    String coord,
-  ) {
-    final key = '$lineIndex-$coord';
-    
-    if (!_coordinateControllers.containsKey(key)) {
-      _coordinateControllers[key] = TextEditingController(text: value.toStringAsFixed(3));
-    }
-
-    if (!_coordinateFocusNodes.containsKey(key)) {
-      _coordinateFocusNodes[key] = FocusNode();
-    }
-
-    final focusNode = _coordinateFocusNodes[key]!;
-
-    return Focus(
-      focusNode: focusNode,
-      onKeyEvent: (node, event) {
-        if (event is! KeyDownEvent) return KeyEventResult.ignored;
-        if (!enabled) return KeyEventResult.ignored;
-
-        const step = 0.005;
-
-        switch (event.logicalKey) {
-          case LogicalKeyboardKey.keyA:
-            if (coord.startsWith('x')) {
-              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
-              final newValue = (currentValue - step).clamp(0.0, 1.0);
-              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
-              onChanged(newValue.toStringAsFixed(3));
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
-
-          case LogicalKeyboardKey.keyD:
-            if (coord.startsWith('x')) {
-              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
-              final newValue = (currentValue + step).clamp(0.0, 1.0);
-              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
-              onChanged(newValue.toStringAsFixed(3));
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
-
-          case LogicalKeyboardKey.keyW:
-            if (coord.startsWith('y')) {
-              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
-              final newValue = (currentValue - step).clamp(0.0, 1.0);
-              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
-              onChanged(newValue.toStringAsFixed(3));
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
-
-          case LogicalKeyboardKey.keyS:
-            if (coord.startsWith('y')) {
-              final currentValue = double.tryParse(_coordinateControllers[key]!.text) ?? value;
-              final newValue = (currentValue + step).clamp(0.0, 1.0);
-              _coordinateControllers[key]!.text = newValue.toStringAsFixed(3);
-              onChanged(newValue.toStringAsFixed(3));
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
-
-          default:
-            return KeyEventResult.ignored;
-        }
-      },
-      child: TextField(
-        controller: _coordinateControllers[key],
-        decoration: InputDecoration(
-          labelText: label,
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          border: const OutlineInputBorder(),
-        ),
-        style: Theme.of(context).textTheme.bodySmall,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        enabled: enabled,
-        onChanged: onChanged,
-      ),
-    );
-  }
-
-  void _pickColor(BuildContext context) {
-    final provider = context.read<DirectionsViewModel>();
-    final direction = widget.direction;
-    final localizations = widget.localizations;
-    Color tempColor = direction.color;
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(localizations!.pickAColor),
-        content: ColorPicker(
-          pickerColor: direction.color,
-          onColorChanged: (Color color) => tempColor = color,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(localizations.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              provider.updateColor(tempColor);
-              Navigator.of(context).pop();
-            },
-            child: Text(localizations.save),
-          ),
-        ],
       ),
     );
   }
