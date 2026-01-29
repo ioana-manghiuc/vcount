@@ -229,7 +229,6 @@ class _AnnotatedVideoPlayerState extends State<AnnotatedVideoPlayer> {
                                 child: Video(controller: _videoController),
                               ),
                             ),
-                            // Exit fullscreen control
                             Positioned(
                               top: 8,
                               right: 8,

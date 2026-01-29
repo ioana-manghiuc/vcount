@@ -15,9 +15,7 @@ class DirectionsPanel extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
 
     final modelItems = [
-      'yolo11s', 'yolo11m', 'yolo11l', 'yolo26s', 'yolo26m', 'yolo26l',
-      'yolo11s-cpu32', 'yolo11m-cpu', 'yolo11l-cpu', 
-      'yolo26n-cpu', 'yolo26s-cpu', 'yolo26m-cpu', 'yolo26l-cpu']
+      'yolo11s', 'yolo11m', 'yolo11l']
           .map(
             (m) => DropdownMenuItem(
               value: m,

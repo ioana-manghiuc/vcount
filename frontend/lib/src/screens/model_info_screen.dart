@@ -18,15 +18,6 @@ class ModelInfoScreen extends StatelessWidget {
           children: [
             _buildModelCard(
               context: context,
-              model: localizations.modelYolo11n,
-              speed: localizations.speedFastest,
-              accuracy: localizations.accuracyGood,
-              hardwareReq: localizations.hardwareMinimal,
-              description: localizations.descriptionYolo11n,
-            ),
-            const SizedBox(height: 16),
-            _buildModelCard(
-              context: context,
               model: localizations.modelYolo11s,
               speed: localizations.speedFast,
               accuracy: localizations.accuracyBetter,
@@ -50,15 +41,6 @@ class ModelInfoScreen extends StatelessWidget {
               accuracy: localizations.accuracyExcellent,
               hardwareReq: localizations.hardwareHigh,
               description: localizations.descriptionYolo11l,
-            ),
-            const SizedBox(height: 16),
-            _buildModelCard(
-              context: context,
-              model: localizations.modelYolo11xl,
-              speed: localizations.speedVerySlow,
-              accuracy: localizations.accuracyOutstanding,
-              hardwareReq: localizations.hardwareVeryHigh,
-              description: localizations.descriptionYolo11xl,
             ),
             const SizedBox(height: 32),
             Container(

@@ -6,5 +6,6 @@
   "userManualStepDraw": "Faceți clic pentru a adăuga puncte pe imagine pentru a crea linii de direcție, adăugați etichete și salvați-le. Selectați care linie este considerată punctul de intrare.",
   "userManualStepSend": "Trimiteți direcțiile blocate către backend.",
   "userManualTip": "Sfat: Puteți schimba culorile înainte de a desena o nouă direcție.",
+  "userManualTimeoutWarning": "Avertisment: Procesarea expiră după 2 ore. Videoclipurile peste 60–90 de minute pot fi prea lungi.",
   "userManualEditingLine": "Puteți edita coordonatele unei linii selectând-o, alegând un punct de coordonate (selectați în cardul de direcție) și folosind tastele WASD. Tastele W și S mută coordonatele Y în sus și în jos, în timp ce A și D mută coordonatele X la stânga și la dreapta."
 }
