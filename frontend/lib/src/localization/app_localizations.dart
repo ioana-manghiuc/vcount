@@ -124,7 +124,6 @@ class AppLocalizations {
   String get recommendation1 => _localizedStrings['recommendation1'] ?? '• Start with YOLO11n or YOLO11s if unsure about your hardware capabilities';
   String get recommendation2 => _localizedStrings['recommendation2'] ?? '• If processing is too slow, downgrade to a smaller model';
   String get recommendation3 => _localizedStrings['recommendation3'] ?? '• If accuracy is not good enough, upgrade to a larger model';
-  String get recommendation4 => _localizedStrings['recommendation4'] ?? '• GPU acceleration significantly improves speed (CUDA for NVIDIA, Metal for Apple)';
   String get tapCanvasToUpload => _localizedStrings['tapCanvasToUpload'] ?? 'Tap the canvas or button to upload a video';
   String get modelInfoTooltip => _localizedStrings['modelInfoTooltip'] ?? 'Click for more information about models';
   String get startScreenWelcome => _localizedStrings['startScreenWelcome'] ?? 'Welcome to VCount!';

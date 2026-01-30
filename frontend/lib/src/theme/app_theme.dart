@@ -12,6 +12,7 @@ ThemeData lightMode = ThemeData(
     //primaryContainer: const Color.fromARGB(255, 229, 190, 178), // direction panel
     primaryContainer: const Color.fromARGB(255, 235, 219, 209), // direction panel
     secondaryContainer: const Color.fromARGB(255, 185, 152, 141), // direction card
+    onPrimaryFixed: const Color.fromARGB(255, 159, 106, 106),
     onSecondaryFixed: const Color.fromARGB(255, 185, 134, 118), // selected direction card
     tertiary:const Color.fromARGB(255, 22, 114, 0), // editable text
     onTertiary: const Color.fromARGB(255, 36, 17, 9), // APP BAR TEXT
@@ -31,6 +32,7 @@ ThemeData darkMode = ThemeData(
     onSecondary: const Color.fromARGB(255, 236, 224, 216),
     primaryContainer: const Color.fromARGB(255, 40, 21, 19), // direction panel
     secondaryContainer: const Color.fromARGB(255, 48, 35, 29), // direction card
+    onPrimaryFixed: const Color.fromARGB(255, 75, 49, 49),
     onSecondaryFixed: const Color.fromARGB(255, 116, 84, 75), // selected direction card
     tertiary:Color.fromARGB(255, 100, 170, 83), // editable text
     onTertiary: const Color.fromARGB(255, 185, 152, 141), //

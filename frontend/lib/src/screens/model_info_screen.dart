@@ -46,7 +46,7 @@ class ModelInfoScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(90, 33, 149, 243),
+                color: Theme.of(context).colorScheme.onPrimaryFixed,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -65,8 +65,7 @@ class ModelInfoScreen extends StatelessWidget {
                   Text(localizations.recommendation2),
                   const SizedBox(height: 8),
                   Text(localizations.recommendation3),
-                  const SizedBox(height: 8),
-                  Text(localizations.recommendation4),
+                  const SizedBox(height: 8)
                 ],
               ),
             ),
@@ -88,6 +87,7 @@ class ModelInfoScreen extends StatelessWidget {
     
     return Card(
       elevation: 2,
+      color: Theme.of(context).colorScheme.secondary,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

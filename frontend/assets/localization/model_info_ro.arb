@@ -21,6 +21,5 @@
   "recommendationsTitle": "💡 Recomandări:",
   "recommendation1": "• Începeți cu YOLO11s sau YOLO11m dacă nu sunteți sigur de capabilitățile hardware-ului dvs.",
   "recommendation2": "• Dacă procesarea este prea lentă, treceți la un model mai mic",
-  "recommendation3": "• Dacă acuratețea nu este suficient de bună, treceți la un model mai mare",
-  "recommendation4": "• Accelerarea GPU îmbunătățește semnificativ viteza (CUDA pentru NVIDIA, Metal pentru Apple)"
+  "recommendation3": "• Dacă acuratețea nu este suficient de bună, treceți la un model mai mare"
 }
