@@ -7,7 +7,6 @@ from app.services.frame_annotator import FrameAnnotator
 
 logger = logging.getLogger("app")
 
-
 class VideoProcessor:
     """Handles video frame processing with tracking and annotation."""
     

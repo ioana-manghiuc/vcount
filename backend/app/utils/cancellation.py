@@ -2,9 +2,7 @@
 from datetime import datetime
 from typing import Dict
 
-# Global task registry
 processing_tasks: Dict[str, dict] = {}
-
 
 def register_task(processing_id: str) -> None:
     """Register a new processing task."""

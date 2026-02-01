@@ -37,13 +37,11 @@ class FrameAnnotator:
             direction: Direction configuration from counter
             direction_data: Original direction data with color info
         """
-        # Extract color
         if direction_data and 'color' in direction_data:
             color_bgr = FrameAnnotator.extract_color_from_argb(direction_data['color'])
         else:
             color_bgr = (255, 255, 255)
         
-        # Draw entry line
         ex1 = int(direction['entry_line']['x1'])
         ey1 = int(direction['entry_line']['y1'])
         ex2 = int(direction['entry_line']['x2'])
@@ -56,7 +54,6 @@ class FrameAnnotator:
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2, cv2.LINE_AA
         )
         
-        # Draw exit line
         x1 = int(direction['exit_line']['x1'])
         y1 = int(direction['exit_line']['y1'])
         x2 = int(direction['exit_line']['x2'])
@@ -112,7 +109,6 @@ class FrameAnnotator:
         for direction in directions:
             dir_id = direction['id']
             
-            # Extract color
             dir_data = next(
                 (dd for dd in directions_data if dd['id'] == dir_id), None
             )
@@ -121,7 +117,6 @@ class FrameAnnotator:
             else:
                 text_color = (50, 255, 50)
             
-            # Build label
             label = (
                 f"{direction['from']} -> {direction['to']}: "
                 f"B:{counts[dir_id]['bikes']} "
@@ -130,7 +125,6 @@ class FrameAnnotator:
                 f"T:{counts[dir_id]['trucks']}"
             )
             
-            # Draw background
             (text_w, text_h), _ = cv2.getTextSize(
                 label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
             )
@@ -147,7 +141,6 @@ class FrameAnnotator:
                 text_color, 2
             )
             
-            # Draw text
             cv2.putText(
                 overlay, label, (20, y_offset),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 2, cv2.LINE_AA
@@ -178,17 +171,14 @@ class FrameAnnotator:
         """
         overlay = frame.copy()
         
-        # Draw direction lines
         for direction in directions:
             dir_data = next(
                 (dd for dd in directions_data if dd['id'] == direction['id']), None
             )
             cls.draw_direction_lines(overlay, direction, dir_data)
         
-        # Draw detections
         cls.draw_detections(overlay, detections)
         
-        # Draw counts
         cls.draw_counts(overlay, directions, counts, directions_data)
         
         return overlay
