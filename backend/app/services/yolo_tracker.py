@@ -5,7 +5,6 @@ import logging
 
 logger = logging.getLogger("yolo_tracker")
 
-
 class YOLOVehicleTracker:
     """YOLO-based vehicle detection and tracking."""
     

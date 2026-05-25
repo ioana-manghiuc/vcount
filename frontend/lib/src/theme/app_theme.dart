@@ -9,7 +9,6 @@ ThemeData lightMode = ThemeData(
     primary: const Color.fromARGB(255, 98, 29, 22), // e.g. start button
     onPrimary: const Color.fromARGB(255, 245, 231, 223), 
     secondary: const Color.fromARGB(255, 228, 210, 200), // app bar, direction panel, canvas bgk
-    //primaryContainer: const Color.fromARGB(255, 229, 190, 178), // direction panel
     primaryContainer: const Color.fromARGB(255, 235, 219, 209), // direction panel
     secondaryContainer: const Color.fromARGB(255, 185, 152, 141), // direction card
     onPrimaryFixed: const Color.fromARGB(255, 159, 106, 106),

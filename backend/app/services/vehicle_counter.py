@@ -4,7 +4,6 @@ import logging
 
 logger = logging.getLogger("vehicle_counter")
 
-
 class VehicleCounter:
     """
     Tracks vehicles crossing directional lines.

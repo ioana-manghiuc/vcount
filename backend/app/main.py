@@ -18,7 +18,6 @@ async def log_requests(request: Request, call_next):
     logger.info("→ %d", response.status_code)
     return response
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
