@@ -46,7 +46,6 @@ async def count_vehicles(
         logger.warning("   model_name: %s", model_name)
         logger.warning("   intersection_name: %s", intersection_name)
         
-        # Register task for cancellation tracking
         cancellation.register_task(processing_id) 
         logger.warning("Registered task for processing_id: %s", processing_id)
 
@@ -62,16 +61,13 @@ async def count_vehicles(
                 d["id"], d["from"], d["to"], len(d.get("lines", []))
             )
 
-        # Save uploaded video
         video_path = os.path.join(UPLOAD_FOLDER, f"{uuid4()}_{video.filename}")
         with open(video_path, "wb") as f:
             f.write(await video.read())
 
-        # Detect device
         device = "cuda" if cv2.cuda.getCudaEnabledDeviceCount() > 0 else "cpu"
         logger.info("Device selected: %s", device)
 
-        # Get video properties
         cap = cv2.VideoCapture(video_path)
         ret, frame = cap.read()
         if not ret:
@@ -82,10 +78,8 @@ async def count_vehicles(
         
         logger.info(f"Video dimensions: {w}x{h}")
 
-        # Resolve model path
         model_path = ModelConfig.resolve_model_path(model_name)
         
-        # Initialize tracker and counter
         tracker = YOLOVehicleTracker(
             model_path=model_path,
             conf=0.45,
@@ -99,7 +93,6 @@ async def count_vehicles(
             frame_h=h,
         )
 
-        # Setup video writer
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         annotated_filename = f"annotated_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}.mp4"
         annotated_path = os.path.join(RESULTS_FOLDER, annotated_filename)
@@ -108,7 +101,6 @@ async def count_vehicles(
         logger.info("Starting vehicle counting...")
         start_time = datetime.now()
 
-        # Process video frames
         processor = VideoProcessor(
             tracker=tracker,
             counter=counter,
@@ -129,7 +121,6 @@ async def count_vehicles(
         logger.info(f"Video processing complete: {frame_count} frames processed in {processing_time:.2f}s")
         writer.release()
         
-        # Check if cancelled
         if cancellation.is_cancelled(processing_id):
             logger.warning("Task was cancelled - skipping results save and deleting annotated video")
             if os.path.exists(annotated_path):
@@ -138,7 +129,6 @@ async def count_vehicles(
             cancellation.mark_completed(processing_id)
             return {"status": "cancelled", "processing_id": processing_id}
     
-        # Generate results
         results = counter.get_results()
         
         results_with_metadata = {
@@ -159,7 +149,6 @@ async def count_vehicles(
             }
         }
 
-        # Save results to file
         result_filename = f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}.json"
         result_path = os.path.join(RESULTS_FOLDER, result_filename)
         with open(result_path, 'w') as f:
