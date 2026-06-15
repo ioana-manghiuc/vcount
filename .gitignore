@@ -12,6 +12,7 @@ __pycache__/
 frames/
 videos/
 results/
+xresults/
 dist/
 develop-eggs/
 dist/

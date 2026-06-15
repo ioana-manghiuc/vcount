@@ -71,7 +71,7 @@ Future<void> showLoadIntersectionDialog(
   AppLocalizations localizations,
 ) async {
 
-  Future<void> _handlePickFile({bool shouldPopDialog = true}) async {
+  Future<void> handlePickFile({bool shouldPopDialog = true}) async {
     final result = await provider.pickIntersectionFile();
     if (result == null) {
       if (!context.mounted) return;
@@ -94,7 +94,7 @@ Future<void> showLoadIntersectionDialog(
   final intersectionsDir = Directory(p.join(dir.path, 'intersections'));
 
   if (!intersectionsDir.existsSync()) {
-    await _handlePickFile(shouldPopDialog: false);
+    await handlePickFile(shouldPopDialog: false);
     return;
   }
 
@@ -167,7 +167,7 @@ Future<void> showLoadIntersectionDialog(
         ),
         actions: [
           TextButton(
-            onPressed: () => _handlePickFile(),
+            onPressed: () => handlePickFile(),
             child: Text(localizations.loadFromDisk),
           ),
           TextButton(

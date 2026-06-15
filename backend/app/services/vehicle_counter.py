@@ -39,6 +39,8 @@ class VehicleCounter:
             for d in self.directions
         }
         
+        self._prev_positions: Dict[int, list] = {}
+        
         logger.info(f"VehicleCounter initialized with {len(self.directions)} directions")
     
     def _parse_directions(self, directions: List[Dict]) -> List[Dict]:
@@ -76,78 +78,59 @@ class VehicleCounter:
         
         return parsed
     
-    def update(self, detections: List[Dict]):
-        """
-        Update vehicle states based on current frame detections.
-        Hybrid approach: on first sighting, record initial side relative to each line.
-        On subsequent frames, use segment intersection to detect crossings.
-        Fallback: if detection briefly drops and reappears past a line,
-        count based on side-change relative to the line.
-        
-        Args:
-            detections: List of {track_id: int, cx: float, cy: float, class_id: int}
-        """
+    def update(self, detections):
         for detection in detections:
             track_id = detection['track_id']
             cx = detection['cx']
             cy = detection['cy']
             class_id = detection['class_id']
-            prev = getattr(self, '_prev_positions', {}).get(track_id)
-            
-            for direction in self.directions:
+        
+            history = self._prev_positions.get(track_id, [])
+
+            if not history:
+                self._prev_positions[track_id] = [(cx, cy)]
+                continue
+
+            prev = history[-1]
+
+            for direction in self.directions:  # <-- must be indented inside the detection loop
                 dir_id = direction['id']
                 current_state = self.vehicle_state[dir_id].get(track_id)
-                
+
                 if current_state is None:
                     entry_side = self._get_side_of_line(cx, cy, direction['entry_line'])
                     if entry_side is not None:
-                        self.vehicle_state[dir_id][track_id] = {'entry_side': entry_side, 'phase': 'tracking_entry'}
-                
-                elif isinstance(current_state, dict) and current_state.get('phase') == 'tracking_entry':
-                    crossed = False
+                        self.vehicle_state[dir_id][track_id] = {
+                            'entry_side': entry_side,
+                            'phase': 'tracking_entry'
+                        }
 
-                    if prev is not None and self._segments_intersect(prev, (cx, cy), direction['entry_line']):
-                        crossed = True
-                    else:
-                        prev_side = current_state.get('entry_side')
-                        cur_side = self._get_side_of_line(cx, cy, direction['entry_line'])
-                        if prev_side is not None and cur_side is not None and prev_side != cur_side:
-                            crossed = True
-                    if crossed:
-                        self.vehicle_state[dir_id][track_id] = {'phase': 'tracking_exit', 'exit_side': None}
-                        logger.debug(f"Vehicle {track_id} crossed ENTRY for direction {dir_id}")
-                    else:
-                        entry_side = self._get_side_of_line(cx, cy, direction['entry_line'])
-                        if entry_side is not None:
-                            self.vehicle_state[dir_id][track_id]['entry_side'] = entry_side
-                
+                elif isinstance(current_state, dict) and current_state.get('phase') == 'tracking_entry':
+                    if self._segments_intersect(prev, (cx, cy), direction['entry_line']):
+                        self.vehicle_state[dir_id][track_id] = {
+                            'phase': 'tracking_exit',
+                            'exit_side': None
+                        }
+                        logger.debug("Vehicle %d crossed ENTRY for direction %s", track_id, dir_id)
+
                 elif isinstance(current_state, dict) and current_state.get('phase') == 'tracking_exit':
-                    crossed = False
-                    if prev is not None and self._segments_intersect(prev, (cx, cy), direction['exit_line']):
-                        crossed = True
-                    else:
-                        prev_exit_side = current_state.get('exit_side')
-                        cur_exit_side = self._get_side_of_line(cx, cy, direction['exit_line'])
-                        if prev_exit_side is not None and cur_exit_side is not None and prev_exit_side != cur_exit_side:
-                            crossed = True
-                    if crossed:
+                    if self._segments_intersect(prev, (cx, cy), direction['exit_line']):
                         self.vehicle_state[dir_id][track_id] = 'exit'
                         category = self.CLASS_MAPPING.get(class_id, 'cars')
                         self.counts[dir_id][category] += 1
                         logger.info(
-                            f"Vehicle {track_id} ({category}) counted for {direction['from']} - {direction['to']} "
-                            f"(Total {category}: {self.counts[dir_id][category]})"
+                            "Vehicle %d (%s) counted for direction %s (total: %d)",
+                            track_id, category, dir_id, self.counts[dir_id][category]
                         )
-                    else:
-                        cur_exit_side = self._get_side_of_line(cx, cy, direction['exit_line'])
-                        if cur_exit_side is not None:
-                            self.vehicle_state[dir_id][track_id]['exit_side'] = cur_exit_side
-        
-        if not hasattr(self, '_prev_positions'):
-            self._prev_positions = {}
-        for d in detections:
-            self._prev_positions[d['track_id']] = (d['cx'], d['cy'])
-    
+
+        for d in detections:  # this stays outside, runs after all detections processed
+            tid = d['track_id']
+            if tid not in self._prev_positions:
+                self._prev_positions[tid] = []
+            self._prev_positions[tid].append((d['cx'], d['cy']))
+            if len(self._prev_positions[tid]) > 10:
+                self._prev_positions[tid] = self._prev_positions[tid][-10:]
+            
     def _get_side_of_line(self, cx: float, cy: float, line: Dict) -> int:
         """
         Determine which side of a line a point is on using cross product.

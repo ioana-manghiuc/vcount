@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'providers/language_provider.dart';
 import 'localization/app_localizations.dart';
 import 'view_models/directions_view_model.dart';
+import 'view_models/home_view_model.dart';
 import 'view_models/results_view_model.dart';
 import 'theme/app_theme.dart';
 class VCount extends StatelessWidget {
@@ -17,6 +18,7 @@ class VCount extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (context) => HomeViewModel()),
         ChangeNotifierProvider(create: (context) => DirectionsViewModel()),
         ChangeNotifierProvider(create: (context) => ResultsViewModel()),
       ],

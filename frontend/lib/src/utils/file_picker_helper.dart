@@ -18,6 +18,22 @@ class FilePickerHelper {
     return VideoModel(path: videoPath);
   }
 
+  static Future<List<VideoModel>?> pickMultipleVideos() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+      allowMultiple: true,
+    );
+ 
+    if (result == null) return null;
+ 
+    final videos = result.files
+        .where((f) => f.path != null)
+        .map((f) => VideoModel(path: f.path!))
+        .toList();
+ 
+    return videos;
+  }
+
   static bool _isValidIntersectionJson(Map<String, dynamic> json) {
     try {
       if (!json.containsKey('id') || (json['id'] is! String && json['id'] is! int)) return false;

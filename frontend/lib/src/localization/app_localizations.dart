@@ -100,6 +100,19 @@ class AppLocalizations {
   String get loadFromDisk => _localizedStrings['loadFromDisk'] ?? 'Load from Disk';
   String get invalidFileContent => _localizedStrings['invalidFileContent'] ?? 'Invalid file content. Please select a valid intersection JSON file.';
   String get twoLinesRequired => _localizedStrings['twoLinesRequired'] ?? 'Direction is defined by two lines! Edit current lines or start a new direction';
+  String get aboutBulkProcessing => _localizedStrings['aboutBulkProcessing'] ?? 'About Processing Multiple Videos';
+  String get change => _localizedStrings['change'] ?? 'Change';
+  String get selectOneOrMoreVideos => _localizedStrings['selectOneOrMoreVideos'] ?? 'Select one or multiple videos of the same intersection';
+  String get downloadAllJSON => _localizedStrings['downloadAllJSON'] ?? 'Download All (JSON)';
+  String get downloadAllCSV => _localizedStrings['downloadAllCSV'] ?? 'Download All (CSV)';
+  String get downloadJSON => _localizedStrings['downloadJSON'] ?? 'Download results (JSON)';
+  String get downloadCSV => _localizedStrings['downloadCSV'] ?? 'Download results (CSV)';
+  String get downloadSelectedJSON => _localizedStrings['downloadSelectedJSON'] ?? 'Download selected results (JSON)';
+  String get downloadSelectedCSV => _localizedStrings['downloadSelectedCSV'] ?? 'Download selected results (CSV)';
+  String get resultSavedSuccessfully => _localizedStrings['resultSavedSuccessfully'] ?? 'All results downloaded successfully!';
+  String get failedToSaveResults => _localizedStrings['failedToSaveResults'] ?? 'Failed to download all results.';
+  String get totalVideos => _localizedStrings['totalVideos'] ?? 'Total Videos';
+  String get allVideos => _localizedStrings['allVideos'] ?? 'All Videos';
 
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';
   String get modelYolo11s => _localizedStrings['modelYolo11s'] ?? 'YOLO11s';
@@ -131,15 +144,17 @@ class AppLocalizations {
   String get line => _localizedStrings['line'] ?? 'Line';
   String get lines => _localizedStrings['lines'] ?? 'Lines';
   
-  String lineNumber(int number) => '${line} ${number}';
-  String linesCount(int count) => '${lines} (${count}):';
+  String lineNumber(int number) => '$line $number';
+  String linesCount(int count) => '$lines ($count):';
   String intersectionSaved(String name) => _localizedStrings['intersectionSaved']?.replaceAll('{name}', name) ?? 'Intersection "$name" saved in intersections folder!';
   String intersectionLoaded(String name) => _localizedStrings['intersectionLoaded']?.replaceAll('{name}', name) ?? 'Intersection "$name" loaded!';
   String intersectionDeleted(String name) => _localizedStrings['intersectionDeleted']?.replaceAll('{name}', name) ?? 'Intersection "$name" deleted!';
   String lineWithNumber(int number) => _localizedStrings['lineWithNumber']?.replaceAll('{number}', number.toString()) ?? 'Line {number}';
   String exitLineLabel(int number) => _localizedStrings['exitLineLabel']?.replaceAll('{number}', number.toString()) ?? 'Exit Line {number}';
   String entryLineLabel(int number) => _localizedStrings['entryLineLabel']?.replaceAll('{number}', number.toString()) ?? 'Entry Line {number}';
-
+  String videosSelectedForProcessing(int number) => _localizedStrings['videosSelectedForProcessing']?.replaceAll('{number}', number.toString()) ?? '{number} videos selected';
+  String videoSelectedForProcessing(int number) => _localizedStrings['videoSelectedForProcessing']?.replaceAll('{number}', number.toString()) ?? '{number} video selected';
+  String exportDataCombined(int number) => _localizedStrings['exportDataCombined']?.replaceAll('{number}', number.toString()) ?? 'Export data from all {number} videos combined.'; 
 }
 
 class _AppLocalizationsDelegate

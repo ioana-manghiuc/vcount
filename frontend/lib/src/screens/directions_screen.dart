@@ -13,7 +13,13 @@ import '../localization/app_localizations.dart';
 class DirectionsScreen extends StatefulWidget {
   final VideoModel video;
 
-  const DirectionsScreen({super.key, required this.video});
+  final bool isBulk;
+
+  const DirectionsScreen({
+    super.key,
+    required this.video,
+    this.isBulk = false,
+  });
 
   @override
   State<DirectionsScreen> createState() => _DirectionsScreenState();
@@ -53,7 +59,10 @@ class _DirectionsScreenState extends State<DirectionsScreen> {
         appBar: const AppBarWidget(titleKey: 'drawDirections'),
         body: widget.video.thumbnailUrl == null
             ? const Center(child: CircularProgressIndicator())
-            : _DirectionsScreenBody(video: widget.video),
+            : _DirectionsScreenBody(
+                video: widget.video,
+                isBulk: widget.isBulk,
+              ),
       ),
     );
   }
@@ -61,8 +70,12 @@ class _DirectionsScreenState extends State<DirectionsScreen> {
 
 class _DirectionsScreenBody extends StatelessWidget {
   final VideoModel video;
+  final bool isBulk;
 
-  const _DirectionsScreenBody({required this.video});
+  const _DirectionsScreenBody({
+    required this.video,
+    required this.isBulk,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +83,30 @@ class _DirectionsScreenBody extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
+
           Expanded(
             flex: 6,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: DrawOnImage(imageUrl: video.thumbnailUrl!),
+            child: Column(
+              children: [
+
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox.expand(
+                      child: DrawOnImage(imageUrl: video.thumbnailUrl!),
+                    ),
+                  ),
+                ),
+
+                if (isBulk) ...[
+                  const SizedBox(height: 8),
+                  _BulkModeIndicator(video: video),
+                ],
+              ],
             ),
           ),
           const SizedBox(width: 12),
+
           Expanded(
             flex: 2,
             child: ClipRRect(
@@ -91,8 +120,44 @@ class _DirectionsScreenBody extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: _DirectionsPanelWithSendButton(video: video),
+                child: _DirectionsPanelWithSendButton(
+                  video: video,
+                  isBulk: isBulk,
+                ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class _BulkModeIndicator extends StatelessWidget {
+  final VideoModel video;
+
+  const _BulkModeIndicator({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.video_library, size: 16, color: theme.colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            'Bulk mode — directions apply to all selected videos',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onPrimaryContainer,
             ),
           ),
         ],
@@ -103,8 +168,12 @@ class _DirectionsScreenBody extends StatelessWidget {
 
 class _DirectionsPanelWithSendButton extends StatelessWidget {
   final VideoModel video;
+  final bool isBulk;
 
-  const _DirectionsPanelWithSendButton({required this.video});
+  const _DirectionsPanelWithSendButton({
+    required this.video,
+    required this.isBulk,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +191,9 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
                     await _sendDirections(context, directionsProvider);
                   }
                 : null,
-            child: Text(localizations?.translate('sendToBackend') ?? 'Send to Backend'),
+            child: Text(
+              localizations?.translate('sendToBackend') ?? 'Send to Backend',
+            ),
           ),
         ),
       ],
@@ -136,17 +207,20 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
     final localizations = AppLocalizations.of(context);
     final resultsViewModel = context.read<ResultsViewModel>();
 
-    final lockedDirections = directionsProvider.directions.where((d) => d.isLocked).toList();
+    final lockedDirections =
+        directionsProvider.directions.where((d) => d.isLocked).toList();
     for (final direction in lockedDirections) {
       if (direction.lines.length != 2) {
         if (context.mounted) {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: Text(localizations?.translate('directionError') ?? 'Direction Error'),
+              title: Text(
+                localizations?.translate('directionError') ?? 'Direction Error',
+              ),
               content: Text(
-                localizations?.translate('twoLinesRequired') ?? 
-                'Direction is defined by two lines! Edit current lines or start a new direction',
+                localizations?.translate('twoLinesRequired') ??
+                    'Direction is defined by two lines! Edit current lines or start a new direction',
               ),
               actions: [
                 TextButton(
@@ -162,7 +236,7 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
     }
 
     final loadedIntersectionName = directionsProvider.file?.name;
-    
+
     final intersectionName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -172,9 +246,7 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
       ),
     );
 
-    if (intersectionName == null || intersectionName.isEmpty) {
-      return;
-    }
+    if (intersectionName == null || intersectionName.isEmpty) return;
 
     resultsViewModel.setLoading(true);
 
@@ -182,8 +254,15 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
       Navigator.of(context).pushNamed('/results');
     }
 
-    final results = await BackendService.sendDirections(
-      video.path,
+    Future.microtask(() {
+      final id = BackendService.currentProcessingId;
+      if (id != null) resultsViewModel.startProgressStream(id);
+    });
+
+    final videoPaths = directionsProvider.bulkVideoPaths ?? [video.path];
+
+    final results = await BackendService.sendVideos(
+      videoPaths,
       directionsProvider.serializeDirections(),
       directionsProvider.selectedModel,
       intersectionName,
@@ -193,10 +272,9 @@ class _DirectionsPanelWithSendButton extends StatelessWidget {
       if (results != null) {
         resultsViewModel.setResults(results);
       } else {
-        final localizations = AppLocalizations.of(context);
         resultsViewModel.setError(
-          localizations?.translate('errorProcessingResults') ?? 
-          'Failed to process vehicle counting'
+          localizations?.translate('errorProcessingResults') ??
+              'Failed to process vehicle counting',
         );
       }
       resultsViewModel.setLoading(false);
@@ -258,13 +336,9 @@ class _IntersectionNameDialogState extends State<_IntersectionNameDialog> {
             border: const OutlineInputBorder(),
           ),
           autofocus: true,
-          onChanged: (value) {
-            setState(() {});
-          },
+          onChanged: (value) => setState(() {}),
           onSubmitted: (value) {
-            if (value.isNotEmpty) {
-              widget.onConfirm(value);
-            }
+            if (value.isNotEmpty) widget.onConfirm(value);
           },
         ),
         actions: [

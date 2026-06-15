@@ -26,7 +26,7 @@ class EntryLineSelector extends StatelessWidget {
             dropdownColor: Theme.of(context).colorScheme.secondaryContainer,
             iconEnabledColor: Theme.of(context).colorScheme.primary,
             iconDisabledColor: Theme.of(context).colorScheme.onSecondaryFixed,
-            value: direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1),
+            initialValue: direction.lines.indexWhere((l) => l.isEntry).clamp(0, direction.lines.length - 1),
             items: List.generate(
               direction.lines.length,
               (i) => DropdownMenuItem(

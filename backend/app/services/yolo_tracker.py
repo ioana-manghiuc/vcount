@@ -22,8 +22,8 @@ class YOLOVehicleTracker:
         self.device = device
         
         self.tracker_params = {
-            'max_age': 120,        
-            'min_hits': 1,          
+            'max_age': 5,        
+            'min_hits': 3,          
             'iou_threshold': 0.05,  
             'max_det': 300,         
         }

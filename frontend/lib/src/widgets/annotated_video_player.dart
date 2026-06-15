@@ -110,7 +110,7 @@ class _AnnotatedVideoPlayerState extends State<AnnotatedVideoPlayer> {
                       Center(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
                           padding: const EdgeInsets.all(12),
@@ -193,7 +193,7 @@ class _AnnotatedVideoPlayerState extends State<AnnotatedVideoPlayer> {
     _fullscreenEntry = OverlayEntry(
       builder: (ctx) {
         return Material(
-          color: Colors.black.withOpacity(0.92),
+          color: Colors.black.withValues(alpha: 0.92),
           child: SafeArea(
             child: StreamBuilder<Duration>(
               stream: _player.stream.position,

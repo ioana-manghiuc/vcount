@@ -15,6 +15,7 @@ class DirectionsViewModel extends ChangeNotifier {
     String _selectedModel = 'yolo11s';
     bool _isDrawingLine = false;
     String? _selectedLineId;
+    List<String>? _bulkVideoPaths;
 
     List<DirectionModel> get directions => _directions;
     DirectionModel? get activeDirection => _active;
@@ -23,10 +24,16 @@ class DirectionsViewModel extends ChangeNotifier {
     String get selectedModel => _selectedModel;
     String? get selectedLineId => _selectedLineId;
 
+    List<String>? get bulkVideoPaths => _bulkVideoPaths;
+
     bool get canSend => _directions.any((d) => d.isLocked);
     bool get canDraw => _selected != null && !_selected!.isLocked;
 
     IntersectionModel? file;
+
+  void setBulkVideoPaths(List<String>? paths) {
+    _bulkVideoPaths = paths;
+  }
 
   void reset() {
       _directions.clear();
@@ -35,6 +42,7 @@ class DirectionsViewModel extends ChangeNotifier {
       _currentColor = Colors.red;
       _isDrawingLine = false;
       _selectedLineId = null;
+      _bulkVideoPaths = null;
       notifyListeners();
   }
 
@@ -168,7 +176,6 @@ class DirectionsViewModel extends ChangeNotifier {
     };
   }
 
-
   void toggleLock(DirectionModel direction) {
     if (!_directions.contains(direction)) return;
 
@@ -273,6 +280,7 @@ class DirectionsViewModel extends ChangeNotifier {
     notifyListeners();
     return pickedFile;
   }
+
   void selectLine(String? lineId) {
     _selectedLineId = lineId;
     notifyListeners();
@@ -299,6 +307,4 @@ class DirectionsViewModel extends ChangeNotifier {
     );
     notifyListeners();
   }
-
-
 }

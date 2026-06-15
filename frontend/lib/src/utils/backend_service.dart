@@ -38,8 +38,8 @@ class BackendService {
       final response = await http.post(
         Uri.parse('$backendUrl/cancel_processing/$processingId'),
         headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 2));
-      
+      ).timeout(const Duration(seconds: 10));
+
       if (response.statusCode == 200) {
         debugPrint('Backend acknowledged cancellation');
       } else {
@@ -54,142 +54,130 @@ class BackendService {
     _cancelToken = CancelToken();
   }
 
+
+  static String? get currentProcessingId => _currentProcessingId;
+
+
+
   static Future<String?> uploadVideoAndGetThumbnail(String videoPath) async {
-  try {
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$backendUrl/upload_frame'),
-    );
-
-    request.files.add(
-      await http.MultipartFile.fromPath('video', videoPath),
-    );
-
-    final response = await request.send().timeout(
-      const Duration(seconds: 30),
-      onTimeout: () {
-        throw TimeoutException('Backend did not respond');
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final body = await response.stream.bytesToString();
-      final json = jsonDecode(body);
-      final thumbnailUrl = '$backendUrl${json['thumbnail_url']}';
-      return thumbnailUrl;
-    } else {
-      final errorBody = await response.stream.bytesToString();
-      debugPrint('upload_frame failed (${response.statusCode}): $errorBody');
-      return null;
-    }
-  } catch (e, stackTrace) {
-    debugPrint('Error uploading video: $e');
-    debugPrint(stackTrace.toString());
-    return null;
-  }
-}
-
-  static Future<Map<String, dynamic>?> sendDirections(
-    String videoPath,
-    List<Map<String, dynamic>> directions,
-    String modelName,
-    String intersectionName,
-  ) async {
     try {
-      final directionsJson = jsonEncode(directions);
-      
-      debugPrint('\n=== SENDING TO BACKEND ===');
-      debugPrint('Intersection: $intersectionName');
-      debugPrint('Video Path: $videoPath');
-      debugPrint('Model: $modelName');
-      debugPrint('Directions JSON:');
-      debugPrint(directionsJson);
-      debugPrint('\nDirections Detail:');
-      for (final dir in directions) {
-        debugPrint('  Direction: ${dir['from']} - ${dir['to']}');
-        debugPrint('    ID: ${dir['id']}');
-        debugPrint('    Color: ${dir['color']}');
-        debugPrint('    Lines (${(dir['lines'] as List).length} total):');
-        for (int i = 0; i < (dir['lines'] as List).length; i++) {
-          final line = (dir['lines'] as List)[i];
-          debugPrint('      Line $i: x1=${line['x1']}, y1=${line['y1']}, x2=${line['x2']}, y2=${line['y2']}, isEntry=${line['isEntry']}');
-        }
-      }
-      debugPrint('========================\n');
-
-      resetCancelToken();
-      _currentProcessingId = const Uuid().v4();
-      debugPrint('📝 Processing ID: $_currentProcessingId');
-      
-      _httpClient = http.Client();
-      
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('$backendUrl/count_vehicles'),
+        Uri.parse('$backendUrl/upload_frame'),
       );
 
       request.files.add(
         await http.MultipartFile.fromPath('video', videoPath),
       );
 
+      final response = await request.send().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () => throw TimeoutException('Backend did not respond'),
+      );
+
+      if (response.statusCode == 200) {
+        final body = await response.stream.bytesToString();
+        final json = jsonDecode(body);
+        return '$backendUrl${json['thumbnail_url']}';
+      } else {
+        final errorBody = await response.stream.bytesToString();
+        debugPrint('upload_frame failed (${response.statusCode}): $errorBody');
+        return null;
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error uploading video: $e');
+      debugPrint(stackTrace.toString());
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> sendVideos(
+    List<String> videoPaths,
+    List<Map<String, dynamic>> directions,
+    String modelName,
+    String intersectionName,
+  ) async {
+    assert(videoPaths.isNotEmpty, 'sendVideos requires at least one path');
+
+    final isBulk = videoPaths.length > 1;
+    final directionsJson = jsonEncode(directions);
+
+    debugPrint('\n=== SENDING TO BACKEND ===');
+    debugPrint('Mode: ${isBulk ? "bulk" : "single"}');
+    debugPrint('Intersection: $intersectionName');
+    debugPrint('Video count: ${videoPaths.length}');
+    debugPrint('Model: $modelName');
+    debugPrint('========================\n');
+
+    try {
+      resetCancelToken();
+      _currentProcessingId = const Uuid().v4();
+      debugPrint('📝 Processing ID: $_currentProcessingId');
+
+      _httpClient = http.Client();
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+          isBulk
+              ? '$backendUrl/count_vehicles_bulk'
+              : '$backendUrl/count_vehicles',
+        ),
+      );
+
+      final fieldName = isBulk ? 'videos' : 'video';
+      for (final path in videoPaths) {
+        request.files.add(await http.MultipartFile.fromPath(fieldName, path));
+      }
+
       request.fields['directions'] = directionsJson;
       request.fields['model_name'] = modelName;
       request.fields['intersection_name'] = intersectionName;
       request.fields['processing_id'] = _currentProcessingId!;
 
-      final requestFuture = _httpClient!.send(request).timeout(
-        const Duration(seconds: 7200),
-        onTimeout: () {
-          throw TimeoutException('Vehicle counting did not complete');
-        },
-      );
+      final requestFuture = _httpClient!.send(request);
 
       final response = await Future.any([
         requestFuture,
-        _cancelToken.cancellationFuture.then((_) => throw _RequestCancelledException()),
+        _cancelToken.cancellationFuture
+            .then((_) => throw _RequestCancelledException()),
       ]);
 
       if (_cancelToken.isCancelled) {
-        debugPrint('⚠️ Video processing was cancelled by user');
-        _httpClient?.close();
-        _httpClient = null;
-        _currentProcessingId = null;
-        return null;
+        debugPrint('⚠️ Processing was cancelled by user');
+        return _cleanupAndReturn(null);
       }
 
       if (response.statusCode == 200) {
         final body = await response.stream.bytesToString();
         final resultsJson = jsonDecode(body) as Map<String, dynamic>;
-        _httpClient?.close();
-        _httpClient = null;
-        _currentProcessingId = null;
-        return resultsJson;
+        debugPrint('✅ Processing complete');
+        return _cleanupAndReturn(resultsJson);
       } else {
-        debugPrint('❌ Backend returned status code: ${response.statusCode}');
-        _httpClient?.close();
-        _httpClient = null;
-        _currentProcessingId = null;
-        return null;
+        final errorBody = await response.stream.bytesToString();
+        debugPrint('❌ Backend returned ${response.statusCode}: $errorBody');
+        return _cleanupAndReturn(null);
       }
     } on _RequestCancelledException {
       debugPrint('⚠️ Request was cancelled by user');
-      _httpClient?.close();
-      _httpClient = null;
-      _currentProcessingId = null;
-      return null;
+      return _cleanupAndReturn(null);
     } catch (e, stackTrace) {
       if (_cancelToken.isCancelled) {
         debugPrint('⚠️ Request was cancelled');
-        _httpClient?.close();
-        _httpClient = null;
-        _currentProcessingId = null;
-        return null;
+        return _cleanupAndReturn(null);
       }
-      debugPrint('❌ Error sending directions: $e');
+      debugPrint('❌ Error sending videos: $e');
       debugPrint(stackTrace.toString());
       _currentProcessingId = null;
       return null;
     }
+  }
+
+  static T? _cleanupAndReturn<T>(T? value) {
+    _httpClient?.close();
+    _httpClient = null;
+    _currentProcessingId = null;
+    return value;
   }
 }
 

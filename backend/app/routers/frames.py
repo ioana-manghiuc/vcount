@@ -23,6 +23,7 @@ async def upload_frame(video: UploadFile = File(...)):
     logger.info("upload_frame: filename=%s", video.filename)
 
     video_path = os.path.join(UPLOAD_FOLDER, video.filename)
+    
     with open(video_path, "wb") as f:
         f.write(await video.read())
 
@@ -35,7 +36,7 @@ async def upload_frame(video: UploadFile = File(...)):
         fps = cap.get(cv2.CAP_PROP_FPS)
         logger.info("Video FPS: %s", fps)
         
-        frame_index = max(0, int(fps) if fps > 0 else 30)
+        frame_index = max(0, int(fps * 5) if fps > 0 else 150)
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
         
         ret, frame = cap.read()

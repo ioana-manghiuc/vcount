@@ -51,7 +51,7 @@
   "close": "Close",
   "saveIntersection": "Save Intersection",
   "loadIntersection": "Load Intersection",
-  "appDescription": "Direction-aware vehicle counting with quick drawing and YOLO-ready pipelines.",
+  "appDescription": "Detecting and counting vehicles to assist traffic flow studies.",
   "intersectionSaved": "Intersection \"{name}\" saved in intersections folder!",
   "howToChooseModel": "How to Choose the Right Model for Your Hardware",
   "loadFromDisk": "Add file",
@@ -81,6 +81,22 @@
       }
     }
   },
+  "videosSelectedForProcessing":"{number} videos selected",
+  "@videosSelectedForProcessing": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "videoSelectedForProcessing":"{number} video selected",
+  "@videoSelectedForProcessing": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "labelsAndLineRequired": "From / To labels required and draw at least one line.",
   "twoLinesRequired": "Direction is defined by two lines! Edit current lines or start a new direction",
   "line": "Line",
@@ -96,8 +112,6 @@
     }
   },
   "downloadResults": "Download Results",
-  "downloadJSON": "Download JSON",
-  "downloadCSV": "Download CSV",
   "resultsDownloaded": "Results downloaded successfully",
   "processingVideo": "Processing video...",
   "enterIntersectionName": "Enter intersection name",
@@ -127,5 +141,27 @@
   "cancelProcessingMessage": "Video processing is in progress. Are you sure you want to cancel it and go back?",
   "processingCancelled": "Processing cancelled by user",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "resultsError": "Failed to process vehicle counting",
+  "aboutBulkProcessing":"About Processing Multiple Videos",
+  "change": "Change",
+  "selectOneOrMoreVideos":"Select one or multiple videos of the same intersection",
+  "downloadJSON":"Download Results (JSON)",
+  "downloadCSV":"Download Results (CSV)",
+  "downloadAllJSON":"Download All (JSON)",
+  "downloadAllCSV":"Download All (CSV)",
+  "downloadSelectedJSON":"Download selected results (JSON)",
+  "downloadSelectedCSV":"Download selected results (CSV)",
+  "resultSavedSuccessfully":"All results saved successfully!",
+  "failedToSaveResults":"Failed to save all results.",
+  "totalVideos": "Total Videos",
+  "exportDataCombined":"Export data from all {number} videos combined.",
+  "@exportDataCombined": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "allVideos": "All Videos"
 }

@@ -72,7 +72,7 @@ class StartScreen extends StatelessWidget {
               flex: 4,
               child: Align(
                 alignment: const Alignment(0.0, 0.3),
-                child: const SlideTransitionExample(),
+                child: const CarSlideTransition(),
               ),
             ),
           ],

@@ -37,7 +37,7 @@ class DirectionsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DropdownButtonFormField<String>(
-            value: provider.selectedModel,
+            initialValue: provider.selectedModel,
             decoration: InputDecoration(
               labelText: localizations.yolo11VersionLabel,
               isDense: true,
@@ -53,18 +53,21 @@ class DirectionsPanel extends StatelessWidget {
           Tooltip(
             message: localizations.modelInfoTooltip,
             waitDuration: const Duration(milliseconds: 300),
-            child: ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              title: Text(
-                localizations.howToChooseModel,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      decoration: TextDecoration.underline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-              ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ModelInfoScreen()),
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                title: Text(
+                  localizations.howToChooseModel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        decoration: TextDecoration.underline,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ModelInfoScreen()),
+                ),
               ),
             ),
           ),

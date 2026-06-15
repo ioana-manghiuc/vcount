@@ -51,7 +51,7 @@
   "close": "Închide",
   "saveIntersection": "Salvează Intersecție",
   "loadIntersection": "Încarcă Intersecție",
-  "appDescription": "Numărare de vehicule cu conștientizare direcțională, desen rapid și pipeline-uri pregătite pentru YOLO.",
+  "appDescription": "Aplicație de detectare și numărare a vehiculelor din studii de trafic.",
   "intersectionSaved": "Intersecția \"{name}\" a fost salvată în dosarul de intersecții!",
   "howToChooseModel": "Cum să alegi versiunea YOLO11 potrivită?",
   "invalidFileContent": "Conținut de fișier invalid. Te rog selectează un fișier JSON valid pentru intersecție.",
@@ -80,6 +80,22 @@
       }
     }
   },
+  "videosSelectedForProcessing":"{number} videoclipuri selectate",
+  "@videosSelectedForProcessing": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "videoSelectedForProcessing":"{number} videoclip selectat",
+  "@videoSelectedForProcessing": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "labelsAndLineRequired": "Etichetele De la / Către sunt necesare și desenează cel puțin o linie.",
   "twoLinesRequired": "Direcția este definită de două linii! Editează liniile curente sau începe o nouă direcție",
   "line": "Linie",
@@ -95,8 +111,6 @@
     }
   },
   "downloadResults": "Descarcă Rezultate",
-  "downloadJSON": "Descarcă JSON",
-  "downloadCSV": "Descarcă CSV",
   "resultsDownloaded": "Rezultatele au fost descărcate cu succes",
   "processingVideo": "Se procesează videoclipul...",
   "enterIntersectionName": "Introdu numele intersecției",
@@ -118,13 +132,35 @@
   "total": "Total",
   "noResultsAvailable": "Nu sunt disponibile rezultate",
   "errorProcessingResults": "Eroare la procesarea rezultatelor",
-  "failedToDownloadJSON": "Eșec la descărcarea JSON",
-  "failedToDownloadCSV": "Eșec la descărcarea CSV",
+  "failedToDownloadJSON": "Eroare la descărcarea JSON",
+  "failedToDownloadCSV": "Eroare la descărcarea CSV",
   "noVideoAvailable": "Video anotat indisponibil",
   "loadingVideo": "Se încarcă videoclipul...",
   "confirmCancel": "Anulezi procesarea?",
   "cancelProcessingMessage": "Procesarea videoclipului este în curs. Ești sigur că vrei să o anulezi și să te întorci?",
   "processingCancelled": "Procesarea anulată de utilizator",
   "yes": "Da",
-  "no": "Nu"
+  "no": "Nu",
+  "aboutBulkProcessing":"traducere",
+  "aboutBulkProcessing":"Despre procesarea mai multor videoclipuri",
+  "change": "Schimbă",
+  "selectOneOrMoreVideos":"Selectează unul sau mai multe videoclipuri cu aceeași intersecție",
+  "downloadJSON": "Descarcă (JSON)",
+  "downloadCSV": "Descarcă (CSV)",
+  "downloadAllJSON":"Descarcă tot (JSON)",
+  "downloadAllCSV":"Descarcă tot (CSV)",
+  "downloadSelectedJSON": "Descarcă rezultatul selectat (JSON)",
+  "downloadSelectedCSV": "Descarcă rezultatul selectat  (CSV)",
+  "resultSavedSuccessfully":"Toate rezultatele au fost salvate!",
+  "failedToSaveResults":"Eroare la descărcarea tuturor rezultatelor.",
+  "totalVideos": "Total Videoclipuri",
+  "exportDataCombined":"Rezultate combinate din {number} videoclipuri procesate.",
+  "@exportDataCombined": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "allVideos": "Toate videoclipurile"
 }
