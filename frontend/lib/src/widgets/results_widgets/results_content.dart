@@ -261,7 +261,7 @@ class ResultsContent extends StatelessWidget {
                   if (isBulk)
                     _buildSummaryItem(
                       context,
-                      'Total Videos',
+                      localizations?.translate('totalVideos') ?? 'Total Videos',
                       viewModel.videoDropdownLabels.length.toString(),
                     ),
                   _buildSummaryItem(
