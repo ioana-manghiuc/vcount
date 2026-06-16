@@ -8,11 +8,21 @@ import '../localization/app_localizations.dart';
 class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   final String titleKey;
   final String? backTooltipKey;
+  final PreferredSizeWidget? bottom;
+  final VoidCallback? onBackPressed;
 
-  const AppBarWidget({super.key, required this.titleKey, this.backTooltipKey});
+  const AppBarWidget({
+    super.key,
+    required this.titleKey,
+    this.backTooltipKey,
+    this.bottom,
+    this.onBackPressed,
+  });
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
+      );
 
   @override
   State<AppBarWidget> createState() => _AppBarWidgetState();
@@ -63,23 +73,33 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.secondary,
       foregroundColor: Theme.of(context).colorScheme.onSecondary,
+
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          final navigator = Navigator.of(context);
-          if (navigator.canPop()) {
-            navigator.maybePop();
-          } else {
-            navigator.pushReplacementNamed('/start');
-          }
-        },
+        onPressed: widget.onBackPressed ??
+            () {
+              final navigator = Navigator.of(context);
+
+              if (navigator.canPop()) {
+                navigator.maybePop();
+              } else {
+                navigator.pushReplacementNamed('/start');
+              }
+            },
         tooltip: _getBackTooltip(context, widget.backTooltipKey),
       ),
-      title: Text(AppLocalizations.of(context)!.translate(widget.titleKey)),
+
+      title: Text(
+        AppLocalizations.of(context)!.translate(widget.titleKey),
+      ),
+
       actions: [
         IconButton(
           tooltip: AppLocalizations.of(context)!.userManual,
-          icon: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+          icon: Icon(
+            Icons.info_outline,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           onPressed: () {
             Navigator.of(context).pushNamed('/about');
           },
@@ -90,8 +110,9 @@ class _AppBarWidgetState extends State<AppBarWidget> {
           child: DropdownButton<String>(
             focusNode: _focusNode,
             value: languageProvider.locale.languageCode,
-            iconEnabledColor: Theme.of(context).colorScheme.primary,  
-            iconDisabledColor: Theme.of(context).colorScheme.onSecondaryFixed,  
+            iconEnabledColor: Theme.of(context).colorScheme.primary,
+            iconDisabledColor:
+                Theme.of(context).colorScheme.onSecondaryFixed,
             items: [
               DropdownMenuItem(
                 value: 'en',
@@ -106,7 +127,12 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Text('EN', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                    Text(
+                      'EN',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -123,7 +149,12 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Text('RO', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                    Text(
+                      'RO',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -131,7 +162,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
             onChanged: (String? value) {
               if (value != null) {
                 languageProvider.setLanguage(value);
-                _focusNode.unfocus(); 
+                _focusNode.unfocus();
               }
             },
           ),
@@ -140,13 +171,16 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         IconButton(
           icon: Icon(
             themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
-            color: Theme.of(context).colorScheme.primary
+            color: Theme.of(context).colorScheme.primary,
           ),
           onPressed: themeProvider.toggleTheme,
           tooltip: themeProvider.isDark ? 'Light Mode' : 'Dark Mode',
         ),
+
         const SizedBox(width: 8),
       ],
+
+      bottom: widget.bottom,
     );
   }
 }

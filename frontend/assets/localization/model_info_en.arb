@@ -1,5 +1,5 @@
 {
-  "modelInfoTitle": "How to Choose the Right Model for Your Hardware",
+  "modelInfoTitle": "How to choose the right model for your hardware",
   "modelYolo11s": "YOLO11s",
   "modelYolo11m": "YOLO11m",
   "modelYolo11l": "YOLO11l",
@@ -16,8 +16,8 @@
   "hardwareMedium": "Medium (suitable for modern GPUs)",
   "hardwareHigh": "High (suitable for high-end GPUs)",
   "descriptionYolo11s": "The small model offers a good balance between speed and accuracy. Recommended for laptops with limited GPU memory (2-4GB VRAM).",
-  "descriptionYolo11m": "The medium model is the most balanced option. Recommended for laptops with dedicated GPUs (4-6GB VRAM) or desktop computers.",
-  "descriptionYolo11l": "The large model offers high accuracy with slower processing. Recommended for high-performance GPUs (8GB+ VRAM) or batch processing.",
+  "descriptionYolo11m": "The medium model is the most balanced option. Recommended for laptops with dedicated GPUs (4-6GB VRAM).",
+  "descriptionYolo11l": "The large model offers high accuracy with slower processing. Recommended for high-performance GPUs (8GB+ VRAM).",
   "recommendationsTitle": "💡 Recommendations:",
   "recommendation1": "• Start with YOLO11s or YOLO11m if unsure about your hardware capabilities",
   "recommendation2": "• If processing is too slow, downgrade to a smaller model",

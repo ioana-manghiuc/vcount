@@ -1,6 +1,3 @@
-"""Validation for direction data."""
-
-
 def validate_directions(directions: list[dict]) -> None:
     """
     Validate direction data structure and requirements.

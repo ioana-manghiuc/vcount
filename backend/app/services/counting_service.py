@@ -1,6 +1,3 @@
-"""
-Shared vehicle-counting logic used by both the single and bulk routers.
-"""
 import os
 import cv2
 import torch

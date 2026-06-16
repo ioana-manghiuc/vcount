@@ -21,20 +21,29 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _onBackPressed(context);
+        if (!didPop) {
+          _onBackPressed(context);
+        }
       },
       child: Consumer<ResultsViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            // ── App bar: adds video dropdown below title when bulk ──────
-            appBar: _ResultsAppBar(viewModel: viewModel),
+            appBar: _ResultsAppBar(
+              viewModel: viewModel,
+              onBackPressed: () => _onBackPressed(context),
+            ),
             body: () {
-              if (viewModel.isLoading) return const ResultsLoading();
+              if (viewModel.isLoading) {
+                return const ResultsLoading();
+              }
+
               if (viewModel.error != null) {
                 return ResultsError(error: viewModel.error!);
               }
+
               if (viewModel.resultsData == null) {
                 final loc = AppLocalizations.of(context);
+
                 return Center(
                   child: Text(
                     loc?.translate('noResultsAvailable') ??
@@ -42,6 +51,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   ),
                 );
               }
+
               return ResultsContent(viewModel: viewModel);
             }(),
           );
@@ -54,18 +64,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final viewModel = context.read<ResultsViewModel>();
 
     if (!viewModel.isLoading) {
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       return;
     }
 
     final localizations = AppLocalizations.of(context);
+
     showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text(
-            localizations?.translate('confirmCancel') ?? 'Cancel Processing?',
+            localizations?.translate('confirmCancel') ??
+                'Cancel Processing?',
           ),
           content: Text(
             localizations?.translate('cancelProcessingMessage') ??
@@ -80,7 +94,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: Text(
                 localizations?.translate('yes') ?? 'Yes',
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
               ),
             ),
           ],
@@ -89,88 +105,91 @@ class _ResultsScreenState extends State<ResultsScreen> {
     ).then((shouldCancel) {
       if (shouldCancel == true) {
         BackendService.cancelProcessing();
+
         viewModel.setLoading(false);
+
         viewModel.setError(
           localizations?.translate('processingCancelled') ??
               'Processing cancelled by user',
         );
+
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) Navigator.of(context).pop();
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
         });
       }
     });
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Custom app bar — shows the standard title plus, in bulk mode, a video
-// selector dropdown anchored to the top-left below the title row.
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _ResultsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ResultsViewModel viewModel;
+  final VoidCallback onBackPressed;
 
-  const _ResultsAppBar({required this.viewModel});
+  const _ResultsAppBar({
+    required this.viewModel,
+    required this.onBackPressed,
+  });
 
   @override
   Size get preferredSize => Size.fromHeight(
-        (viewModel.isBulk && !viewModel.isLoading) ? kToolbarHeight + 48 : kToolbarHeight,
+        kToolbarHeight +
+            ((viewModel.isBulk && !viewModel.isLoading) ? 48 : 0),
       );
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (!viewModel.isBulk || viewModel.isLoading) {
-      // Single-video: plain app bar unchanged.
-      return const AppBarWidget(titleKey: 'resultsTitle');
-    }
-
-    // Bulk: app bar with an extra row below containing the dropdown.
-    return AppBar(
-      // Mirror AppBarWidget styling — adjust to match your actual widget.
-      title: Text(
-        AppLocalizations.of(context)?.translate('resultsTitle') ?? 'Results',
-      ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.video_library,
-                size: 16,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<int>(
-                    value: viewModel.selectedVideoIndex,
-                    isExpanded: true,
-                    isDense: true,
-                    style: theme.textTheme.bodyMedium,
-                    items: List.generate(
-                      viewModel.videoDropdownLabels.length,
-                      (i) => DropdownMenuItem(
-                        value: i,
-                        child: Text(
-                          viewModel.videoDropdownLabels[i],
-                          overflow: TextOverflow.ellipsis,
+    return AppBarWidget(
+      titleKey: 'resultsTitle',
+      onBackPressed: onBackPressed,
+      bottom: (viewModel.isBulk && !viewModel.isLoading)
+          ? PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 8,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.video_library,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          value: viewModel.selectedVideoIndex,
+                          isExpanded: true,
+                          isDense: true,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          items: List.generate(
+                            viewModel.videoDropdownLabels.length,
+                            (i) => DropdownMenuItem<int>(
+                              value: i,
+                              child: Text(
+                                viewModel.videoDropdownLabels[i],
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          onChanged: (i) {
+                            if (i != null) {
+                              viewModel.setSelectedVideo(i);
+                            }
+                          },
                         ),
                       ),
                     ),
-                    onChanged: (i) {
-                      if (i != null) viewModel.setSelectedVideo(i);
-                    },
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : null,
     );
   }
 }

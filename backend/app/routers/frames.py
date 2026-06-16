@@ -1,4 +1,3 @@
-"""Frame upload and serving endpoints."""
 import os
 import cv2
 import logging

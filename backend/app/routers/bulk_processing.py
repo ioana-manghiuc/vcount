@@ -1,4 +1,3 @@
-"""Bulk vehicle counting — processes multiple videos of the same intersection in parallel."""
 import os
 import json
 import logging
@@ -25,7 +24,6 @@ UPLOAD_FOLDER = Path("videos")
 RESULTS_FOLDER = Path("results")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 RESULTS_FOLDER.mkdir(exist_ok=True)
-
 
 @router.post("/count_vehicles_bulk")
 async def count_vehicles_bulk(
@@ -68,7 +66,7 @@ async def count_vehicles_bulk(
             logger.info("Saved upload: %s → %s", upload.filename, disk_path)
 
         loop = asyncio.get_event_loop()
-        per_video_results: list[dict] = [None] * len(saved_paths)  # type: ignore[list-item]
+        per_video_results: list[dict] = [None] * len(saved_paths)
 
         futures = {
             bulk_executor.submit(

@@ -93,7 +93,7 @@ class VehicleCounter:
 
             prev = history[-1]
 
-            for direction in self.directions:  # <-- must be indented inside the detection loop
+            for direction in self.directions: 
                 dir_id = direction['id']
                 current_state = self.vehicle_state[dir_id].get(track_id)
 
@@ -123,7 +123,7 @@ class VehicleCounter:
                             track_id, category, dir_id, self.counts[dir_id][category]
                         )
 
-        for d in detections:  # this stays outside, runs after all detections processed
+        for d in detections: 
             tid = d['track_id']
             if tid not in self._prev_positions:
                 self._prev_positions[tid] = []

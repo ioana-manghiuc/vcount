@@ -1,4 +1,3 @@
-"""Single-video vehicle counting endpoint."""
 import os
 import json
 import logging

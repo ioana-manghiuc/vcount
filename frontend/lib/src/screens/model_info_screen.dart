@@ -38,7 +38,7 @@ class ModelInfoScreen extends StatelessWidget {
               context: context,
               model: localizations.modelYolo11l,
               speed: localizations.speedSlow,
-              accuracy: localizations.accuracyExcellent,
+              accuracy: localizations.accuracyVeryGood,
               hardwareReq: localizations.hardwareHigh,
               description: localizations.descriptionYolo11l,
             ),

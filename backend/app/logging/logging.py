@@ -1,11 +1,3 @@
-"""Shim to hand off to the stdlib logging package.
-
-Because this file is named ``logging.py``, Python might import it instead of
-the stdlib package. We explicitly load the real stdlib implementation from its
-path, register it in ``sys.modules['logging']``, and re-export its symbols so
-downstream imports behave as expected.
-"""
-
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 import sys

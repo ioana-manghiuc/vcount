@@ -1,4 +1,3 @@
-"""Video processing orchestration."""
 import time
 import queue
 import threading

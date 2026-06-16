@@ -1,4 +1,3 @@
-"""Processing cancellation and progress tracking."""
 from datetime import datetime
 from typing import Dict
 

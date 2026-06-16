@@ -1,5 +1,5 @@
 {
-  "modelInfoTitle": "Cum să Alegeți Modelul Potrivit pentru Hardware-ul Dvs.",
+  "modelInfoTitle": "Cum să alegeți modelul potrivit pentru hardware-ul dvs.",
   "modelYolo11s": "YOLO11s",
   "modelYolo11m": "YOLO11m",
   "modelYolo11l": "YOLO11l",
@@ -16,8 +16,8 @@
   "hardwareMedium": "Mediu (potrivit pentru GPU-uri moderne)",
   "hardwareHigh": "Ridicat (potrivit pentru GPU-uri high-end)",
   "descriptionYolo11s": "Modelul small oferă un echilibru bun între viteză și acuratețe. Recomandat pentru laptop-uri cu memorie GPU limitată (2-4GB VRAM).",
-  "descriptionYolo11m": "Modelul medium este opțiunea cea mai echilibrată. Recomandat pentru laptop-uri cu GPU-uri dedicate (4-6GB VRAM) sau computere desktop.",
-  "descriptionYolo11l": "Modelul large oferă acuratețe ridicată cu procesare mai lentă. Recomandat pentru GPU-uri high-performance (8GB+ VRAM) sau procesare în loturi.",
+  "descriptionYolo11m": "Modelul medium este opțiunea cea mai echilibrată. Recomandat pentru laptop-uri cu GPU-uri dedicate (4-6GB VRAM).",
+  "descriptionYolo11l": "Modelul large oferă acuratețe ridicată cu procesare mai lentă. Recomandat pentru GPU-uri high-performance (8GB+ VRAM).",
   "recommendationsTitle": "💡 Recomandări:",
   "recommendation1": "• Începeți cu YOLO11s sau YOLO11m dacă nu sunteți sigur de capabilitățile hardware-ului dvs.",
   "recommendation2": "• Dacă procesarea este prea lentă, treceți la un model mai mic",
