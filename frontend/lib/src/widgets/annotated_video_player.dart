@@ -97,15 +97,6 @@ class _AnnotatedVideoPlayerState extends State<AnnotatedVideoPlayer> {
                         ),
                       ),
                     ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: IconButton(
-                        tooltip: 'Fullscreen',
-                        onPressed: _showFullscreen,
-                        icon: const Icon(Icons.fullscreen, color: Colors.white),
-                      ),
-                    ),
                     if (!isPlaying)
                       Center(
                         child: Container(

@@ -277,30 +277,29 @@ class _BulkInfoLink extends StatelessWidget {
   const _BulkInfoLink();
 
   void _showDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)?.translate('aboutBulkProcessing') ?? 'About Processing Multiple Videos'),
-        content: const SingleChildScrollView(
-          child: Text(
-            'Bulk processing lets you analyse multiple recordings of the '
-            'same intersection in one go.'
-            '• Select several videos filmed at the same location.'
-            '• You will still draw directions on a single representative '
-            'frame — the same configuration is applied to every video.'
-            'Results are aggregated per direction across all provided '
-            'videos, giving you a combined count for the intersection.',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
+  final localizations = AppLocalizations.of(context);
+
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(
+        localizations?.translate('aboutBulkProcessing') ??
+            'About Processing Multiple Videos',
       ),
-    );
-  }
+      content: SingleChildScrollView(
+        child: Text(
+          localizations?.translate('bulkProcessingInfo') ?? '',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

@@ -183,14 +183,24 @@ class VehicleCounter:
         """Return final counting results."""
         results = {}
         
+        bikeValue = 0.5
+        busValue = 2.5
+        truckValue = 3
+        
+        
         for direction in self.directions:
             dir_id = direction['id']
+            bikes = self.counts[dir_id]['bikes']*bikeValue
+            cars = self.counts[dir_id]['cars']
+            buses = self.counts[dir_id]['buses']*busValue
+            trucks = self.counts[dir_id]['trucks']*truckValue
+            totalVehicles = bikes + cars + buses + trucks
             results[f"{direction['from']} - {direction['to']}"] = {
                 'bikes': self.counts[dir_id]['bikes'],
                 'cars': self.counts[dir_id]['cars'],
                 'buses': self.counts[dir_id]['buses'],
                 'trucks': self.counts[dir_id]['trucks'],
-                'total': sum(self.counts[dir_id].values()),
+                'total': totalVehicles
             }
         
         return results

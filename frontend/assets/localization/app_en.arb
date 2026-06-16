@@ -163,5 +163,6 @@
       }
     }
   },
-  "allVideos": "All Videos"
+  "allVideos": "All Videos",
+  "bulkProcessingInfo": "Bulk processing lets you analyse multiple recordings of the same intersection in one go.\n\n• Select several videos filmed at the same location.\n• You will still draw directions on a single representative frame — the same configuration is applied to every video.\n• Results are aggregated per direction across all provided videos, giving you a combined count for the intersection."
 }

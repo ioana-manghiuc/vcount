@@ -84,7 +84,6 @@ class AppLocalizations {
   String get userManualStepDraw => _localizedStrings['userManualStepDraw'] ?? 'Click to add points on the image to create direction lines, add labels, and lock them.';
   String get userManualStepSend => _localizedStrings['userManualStepSend'] ?? 'Send the locked directions to the backend.';
   String get userManualTip => _localizedStrings['userManualTip'] ?? 'Tip: You can change colors before drawing a new direction.';
-  String get userManualTimeoutWarning => _localizedStrings['userManualTimeoutWarning'] ?? 'Warning: Processing times out after 2 hours. Videos over 60–90 minutes may be too long.';
   String get userManualEditingLine => _localizedStrings['userManualEditingLine'] ?? "You can edit a line's coordinates by selecting it, choosing a coordinate point (select in the direction card), and use WASD. The keys W and S move Y coordinates up and down, while A and D move X coordinates left and right.";
   String get uploadVideoToStartDrawingDirections => _localizedStrings['uploadVideoToStartDrawingDirections'] ?? 'Upload a video to start drawing directions';
   String get directionWarning => _localizedStrings['directionWarning'] ?? 'Direction must have at least 2 points';
@@ -113,6 +112,7 @@ class AppLocalizations {
   String get failedToSaveResults => _localizedStrings['failedToSaveResults'] ?? 'Failed to download all results.';
   String get totalVideos => _localizedStrings['totalVideos'] ?? 'Total Videos';
   String get allVideos => _localizedStrings['allVideos'] ?? 'All Videos';
+  String get bulkProcessingInfo => _localizedStrings['bulkProcessingInfo'] ?? '';
 
   String get modelInfoTitle => _localizedStrings['modelInfoTitle'] ?? 'How to Choose the Right Model for Your Hardware';
   String get modelYolo11s => _localizedStrings['modelYolo11s'] ?? 'YOLO11s';

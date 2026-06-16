@@ -140,7 +140,6 @@ class ResultsContent extends StatelessWidget {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context);
     final items = <Widget>[];
-
     results.forEach((directionId, counts) {
       if (counts is Map<String, dynamic>) {
         items.add(
@@ -170,10 +169,10 @@ class ResultsContent extends StatelessWidget {
                   _buildCountItem(
                     context,
                     localizations?.translate('total') ?? 'Total',
-                    (counts['cars'] ?? 0) +
-                        (counts['bikes'] ?? 0) +
-                        (counts['buses'] ?? 0) +
-                        (counts['trucks'] ?? 0),
+                    (counts['cars'] as num? ?? 0) +
+                        (counts['bikes'] as num? ?? 0) * 0.5 +
+                        (counts['buses'] as num? ?? 0) * 2.5 +
+                        (counts['trucks'] as num? ?? 0) * 3,
                     isTotal: true,
                   ),
                 ],

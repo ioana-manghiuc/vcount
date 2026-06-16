@@ -1,11 +1,10 @@
 {
   "userManualTitle": "Manual de Utilizare",
   "userManualIntro": "Urmați acești pași pentru a începe:",
-  "userManualStepUpload": "Faceți clic pe canvas sau pe butonul de încărcare pentru a selecta un videoclip.",
+  "userManualStepUpload": "Faceți clic pe canvas sau pe butonul de încărcare pentru a selecta unul sau mai multe videoclipuri. Această selecție poate fi schimbată ulterior.",
   "userManualStepWait": "Așteptați în timp ce serverul pregătește miniatura.",
   "userManualStepDraw": "Faceți clic pentru a adăuga puncte pe imagine pentru a crea linii de direcție, adăugați etichete și salvați-le. Selectați care linie este considerată punctul de intrare.",
-  "userManualStepSend": "Trimiteți direcțiile blocate către backend.",
-  "userManualTip": "Sfat: Puteți schimba culorile înainte de a desena o nouă direcție.",
-  "userManualTimeoutWarning": "Avertisment: Procesarea expiră după 2 ore. Videoclipurile peste 60–90 de minute pot fi prea lungi.",
+  "userManualStepSend": "Trimiteți direcțiile salvate către backend. ",
+  "userManualTip": "Sfat: Puteți schimba culorile înainte de a desena o nouă direcție! De asemenea, puteți salva o intersecție configurată.",
   "userManualEditingLine": "Puteți edita coordonatele unei linii selectând-o, alegând un punct de coordonate (selectați în cardul de direcție) și folosind tastele WASD. Tastele W și S mută coordonatele Y în sus și în jos, în timp ce A și D mută coordonatele X la stânga și la dreapta."
 }

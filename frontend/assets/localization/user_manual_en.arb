@@ -1,11 +1,10 @@
 {
   "userManualTitle": "User Manual",
   "userManualIntro": "Follow these steps to get started:",
-  "userManualStepUpload": "Click the canvas or upload button to select a video.",
+  "userManualStepUpload": "Click the canvas or upload button to select one or more videos. This selection can be changed.",
   "userManualStepWait": "Wait while the server prepares the thumbnail.",
   "userManualStepDraw": "Click to add points on the image to create direction lines, add labels, and save them. Select which line is considered the entry point.",
-  "userManualStepSend": "Send the locked directions to the backend.",
-  "userManualTip": "You can change colors before drawing a new direction!",
-  "userManualTimeoutWarning": "Warning: Processing times out after 2 hours. Videos over 60–90 minutes may be too long.",
+  "userManualStepSend": "Send the saved directions to the backend.",
+  "userManualTip": "You can change colors before drawing a new direction! You can also save the configured intersection.",
   "userManualEditingLine": "You can edit a line's coordinates by selecting it, choosing a coordinate point (select in the direction card), and use WASD. The keys W and S move Y coordinates up and down, while A and D move X coordinates left and right."
 }

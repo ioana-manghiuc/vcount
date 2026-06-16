@@ -1,4 +1,9 @@
 class CSVConverter {
+
+  static const double bikeValue = 0.5;
+  static const double busValue = 2.5;
+  static const double truckValue = 3;
+
   static String convertToCSV(Map<String, dynamic> data) {
     final isBulk =
         (data['metadata'] as Map<String, dynamic>?)?['bulk'] == true;
@@ -115,7 +120,10 @@ class CSVConverter {
         final bikes = counts['bikes'] ?? 0;
         final buses = counts['buses'] ?? 0;
         final trucks = counts['trucks'] ?? 0;
-        final total = cars + bikes + buses + trucks;
+        double bikeTotal = bikes * bikeValue;
+        double busTotal = buses * busValue;
+        double truckTotal = trucks * truckValue;
+        final total = cars + bikeTotal + busTotal + truckTotal;
         csv.writeln(
             '="${_escapeCSV(directionId)}",$cars,$bikes,$buses,$trucks,$total');
       }
@@ -138,7 +146,11 @@ class CSVConverter {
       }
     });
 
-    final totalAll = totalCars + totalBikes + totalBuses + totalTrucks;
+    double convertedBikeTotal = totalBikes * bikeValue;
+    double convertedBusTotal = totalBuses * busValue;
+    double convertedTruckTotal = totalTrucks * truckValue;
+
+    final totalAll = totalCars + convertedBikeTotal + convertedBusTotal + convertedTruckTotal;
 
     csv.writeln('SUMMARY TOTALS');
     csv.writeln('Metric,Count');

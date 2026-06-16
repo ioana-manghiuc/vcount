@@ -97,7 +97,6 @@
     }
   },
   "labelsAndLineRequired": "Etichetele De la / Către sunt necesare și desenează cel puțin o linie.",
-  "twoLinesRequired": "Direcția este definită de două linii! Editează liniile curente sau începe o nouă direcție",
   "line": "Linie",
   "lines": "Linii",
   "entryLineLabel": "Prima linie (intrare)",
@@ -141,7 +140,6 @@
   "processingCancelled": "Procesarea anulată de utilizator",
   "yes": "Da",
   "no": "Nu",
-  "aboutBulkProcessing":"traducere",
   "aboutBulkProcessing":"Despre procesarea mai multor videoclipuri",
   "change": "Schimbă",
   "selectOneOrMoreVideos":"Selectează unul sau mai multe videoclipuri cu aceeași intersecție",
@@ -162,5 +160,6 @@
       }
     }
   },
-  "allVideos": "Toate videoclipurile"
+  "allVideos": "Toate videoclipurile",
+  "bulkProcessingInfo":"Procesarea în bloc vă permite să analizați mai multe înregistrări ale aceleiași intersecții simultan.\n\n• Selectați mai multe videoclipuri filmate în aceeași locație.\n• Veți desena în continuare direcții de deplasare pe un singur cadru reprezentativ — aceeași configurație se aplică fiecărui videoclip.\n• Rezultatele sunt agregate pe direcție pentru toate videoclipurile furnizate, oferindu-vă un număr total de vehicule pentru intersecție."
 }

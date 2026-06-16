@@ -12,7 +12,6 @@ class ResultsViewModel extends ChangeNotifier {
   String? _error;
   int _selectedVideoIndex = 0;
 
-  // ── Progress ────────────────────────────────────────────────────────
   double _progressPercent = 0;
   int _framesProcessed = 0;
   int _totalFrames = 0;
@@ -55,8 +54,6 @@ class ResultsViewModel extends ChangeNotifier {
     _sseClient?.close();
     _sseClient = null;
   }
-
-  // ── Bulk helpers ────────────────────────────────────────────────────
 
   Map<String, dynamic>? get resultsData => _resultsData;
   bool get isLoading => _isLoading;
@@ -105,8 +102,6 @@ class ResultsViewModel extends ChangeNotifier {
   String? get activeAnnotatedVideoUrl =>
       activeMetadata?['annotated_video'] as String?;
 
-  /// Single-video payload for the currently selected video.
-  /// Used by the per-video download buttons in bulk mode.
   Map<String, dynamic> get _activeVideoPayload => {
         'results': activeResults ?? {},
         'metadata': activeMetadata ?? {},
@@ -117,8 +112,6 @@ class ResultsViewModel extends ChangeNotifier {
     _selectedVideoIndex = index;
     notifyListeners();
   }
-
-  // ── Core setters ────────────────────────────────────────────────────
 
   void setResults(Map<String, dynamic> data) {
     _resultsData = data;
@@ -138,8 +131,6 @@ class ResultsViewModel extends ChangeNotifier {
   void setLoading(bool loading) {
     _isLoading = loading;
     if (loading) {
-      // Clear stale results so the previous run's bulk state doesn't
-      // bleed into the loading screen of the next run.
       _resultsData = null;
       _selectedVideoIndex = 0;
     } else {
@@ -148,10 +139,6 @@ class ResultsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Downloads ───────────────────────────────────────────────────────
-
-  /// Download JSON for the currently selected video only.
-  /// In single mode this is the whole dataset (same behaviour as before).
   Future<bool> downloadResults() async {
     if (_resultsData == null) return false;
     try {
@@ -181,12 +168,9 @@ class ResultsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Download CSV for the currently selected video only.
   Future<bool> downloadResultsAsCSV() async {
     if (_resultsData == null) return false;
     try {
-      // Always pass a single-video payload so CSVConverter uses the
-      // single-video path regardless of bulk mode.
       final payload = isBulk ? _activeVideoPayload : _resultsData!;
       final label = isBulk
           ? (activeMetadata?['video_file'] as String? ?? 'video')
@@ -213,7 +197,6 @@ class ResultsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Download the full bulk dataset (all videos) as JSON.
   Future<bool> downloadAllResults() async {
     if (_resultsData == null) return false;
     try {
@@ -234,7 +217,6 @@ class ResultsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Download the full bulk dataset (all videos) as CSV.
   Future<bool> downloadAllResultsAsCSV() async {
     if (_resultsData == null) return false;
     try {
